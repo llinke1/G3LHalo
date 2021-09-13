@@ -1,0 +1,8 @@
+f 0 10
+alpha 0 1
+M_min 1e10 1e14
+sigma 0.01 1
+M' 1e11 1e15
+beta 0.1 2
+A -1e-9 1e-9
+epsilon -5 5
