@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[])
 {
-  int n_params=17;
+  int n_params=16;
   std::string usage="./doPrecomputations.x \n Cosmology File \n  File with source redshift distribution \n minimal redshift \n maximal redshift \n minimal halo mass [Msun] \n maximal halo mass [Msun] \n minimal k [1/Mpc] \n maximal k [1/Mpc] Number of bins \n Filename lensing efficiency \n Filename angular diameter distance \n Filename derivative angular diameter distance \n Filename HMF \n Filename linear power spectrum \n Filename halo bias \n Filename concentration \n";
   std::string example="./doPrecomputations.x cosmo.param ../results/ n_z_sources.dat 0.1 2 1e10 1e17 0.01 1000 256";
 
