@@ -447,8 +447,7 @@ namespace g3lhalo
 						   double A, double epsilon, const double* g, const double* p_lens1,
 						   const double* p_lens2, const double* w, const double* dwdz, const double* hmf,
 						   const double* P_lin, const double* b_h, const double* concentration,
-						   const double* rho_bar, const double* n_bar1, const double* n_bar2, double H0,
-						   double OmM, double c=g3lhalo::c, double pi=g3lhalo::pi);
+						   const double* rho_bar, const double* n_bar1, const double* n_bar2);
 
 #if GPU
   /**
@@ -501,8 +500,8 @@ namespace g3lhalo
 				 double zmin, double zmax, double mmin, double mmax, double kmin, double kmax, int Nbins,
 				 const double* g, const double* p_lens1, const double* p_lens2, const double* w, const double* dwdz,
 				 const double* hmf, const double* P_lin, const double* b_h, const double* concentration,
-				 const double* rho_bar, const double* n_bar1, const double* n_bar2, double H0, double OmM,
-				 double* value, double c=g3lhalo::c, double pi=g3lhalo::pi);
+				 const double* rho_bar, const double* n_bar1, const double* n_bar2,
+				 double* value);
 #endif
 
   /**
@@ -574,8 +573,7 @@ namespace g3lhalo
 						   const double* g, const double* p_lens1, const double* p_lens2, const double* w,
 						   const double* dwdz, const double* hmf, const double* P_lin, const double* b_h,
 						   const double* concentration, const double* rho_bar, const double* n_bar1,
-						   const double* n_bar2, double H0, double OmM, double c=g3lhalo::c,
-						   double pi=g3lhalo::pi);
+						   const double* n_bar2);
 
 
 #if GPU
@@ -627,8 +625,7 @@ namespace g3lhalo
 				 double mmin, double mmax, double kmin, double kmax, int Nbins, const double* g,
 				 const double* p_lens1, const double* p_lens2, const double* w, const double* dwdz, const double* hmf,
 				 const double* P_lin, const double* b_h, const double* concentration, const double* rho_bar,
-				 const double* n_bar1, const double* n_bar2, double H0, double OmM,  double* value,
-				 double c=g3lhalo::c, double pi=g3lhalo::pi);
+				 const double* n_bar1, const double* n_bar2, double* value );
 
 #endif
   

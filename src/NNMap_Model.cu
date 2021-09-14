@@ -647,8 +647,7 @@ int g3lhalo::integrand_2halo(unsigned ndim, size_t npts, const double* params, v
 					   nnmap->zmax, nnmap->mmin, nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins,
 					   nnmap->dev_g, nnmap->dev_p_lens1, nnmap->dev_p_lens2, nnmap->dev_w, nnmap->dev_dwdz,
 					   nnmap->dev_hmf, nnmap->dev_P_lin, nnmap->dev_b_h, nnmap->dev_concentration,
-					   nnmap->dev_rho_bar, nnmap->dev_n_bar1, nnmap->dev_n_bar2, nnmap->cosmology->H0,
-					   nnmap->cosmology->Omega_m, dev_value);
+					   nnmap->dev_rho_bar, nnmap->dev_n_bar1, nnmap->dev_n_bar2, dev_value);
 
       cudaFree(dev_params); //< Clean up
 
@@ -681,8 +680,7 @@ int g3lhalo::integrand_2halo(unsigned ndim, size_t npts, const double* params, v
 				      nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins, type1, type2, f1,  f2, alpha1, alpha2,
 				      mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A,  epsilon, nnmap->g,
 				      nnmap->p_lens1, nnmap->p_lens2, nnmap->w,  nnmap->dwdz, nnmap->hmf, nnmap->P_lin, nnmap->b_h,
-				      nnmap->concentration, nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2, nnmap->cosmology->H0,
-				      nnmap->cosmology->Omega_m);
+				      nnmap->concentration, nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2);
     };
 
 #endif
@@ -699,8 +697,7 @@ __device__ __host__ double g3lhalo::kernel_function_2halo(double theta1, double 
 							  const double* g, const double* p_lens1, const double* p_lens2,
 							  const double* w, const double* dwdz, const double* hmf, const double* P_lin,
 							  const double* b_h,  const double* concentration, const double* rho_bar,
-							  const double* n_bar1, const double* n_bar2, double H0, double OmM,
-							  double c, double pi)
+							  const double* n_bar1, const double* n_bar2)
   {
     
     // Get Indices of z, m1, and m2
@@ -768,7 +765,7 @@ __global__ void g3lhalo::GPUkernel_2Halo(const double* params, double theta1, do
 					 double kmax, int Nbins, const double* g, const double* p_lens1, const double* p_lens2,
 					 const double* w, const double* dwdz, const double* hmf, const double* P_lin,
 					 const double* b_h, const double* concentration, const double* rho_bar, const double* n_bar1,
-					 const double* n_bar2, double H0, double OmM, double* value, double c, double pi)
+					 const double* n_bar2, double* value)
 {
   ///Index of thread
   int thread_index=blockIdx.x * blockDim.x + threadIdx.x;
@@ -787,8 +784,7 @@ __global__ void g3lhalo::GPUkernel_2Halo(const double* params, double theta1, do
 
       value[i]=kernel_function_2halo(theta1, theta2, theta3, l1, l2, phi, m1, m2, z, zmin, zmax, mmin, mmax, kmin, kmax, Nbins, type1,
 				     type2, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A,
-				     epsilon, g, p_lens1, p_lens2, w, dwdz, hmf, P_lin, b_h, concentration, rho_bar, n_bar1, n_bar2,
-				     H0, OmM, c, pi);
+				     epsilon, g, p_lens1, p_lens2, w, dwdz, hmf, P_lin, b_h, concentration, rho_bar, n_bar1, n_bar2);
     };
 }
 
@@ -835,7 +831,7 @@ int g3lhalo::integrand_3halo(unsigned ndim, size_t npts, const double* params, v
 				       nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins, nnmap->dev_g, nnmap->dev_p_lens1,
 				       nnmap->dev_p_lens2, nnmap->dev_w, nnmap->dev_dwdz, nnmap->dev_hmf, nnmap->dev_P_lin,
 				       nnmap->dev_b_h, nnmap->dev_concentration, nnmap->dev_rho_bar, nnmap->dev_n_bar1,
-				       nnmap->dev_n_bar2, nnmap->cosmology->H0, nnmap->cosmology->Omega_m, dev_value);
+				       nnmap->dev_n_bar2, dev_value);
 
   cudaFree(dev_params); //< Clean up
 
@@ -860,8 +856,7 @@ int g3lhalo::integrand_3halo(unsigned ndim, size_t npts, const double* params, v
 				      nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins, type1, type2, f1, f2, alpha1, alpha2,
 				      mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, nnmap->g, nnmap->p_lens1,
 				      nnmap->p_lens2,  nnmap->w,  nnmap->dwdz, nnmap->hmf, nnmap->P_lin, nnmap->b_h,
-				      nnmap->concentration, nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2, nnmap->cosmology->H0,
-				      nnmap->cosmology->Omega_m);
+				      nnmap->concentration, nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2);
     };
 
 #endif
@@ -879,8 +874,7 @@ __device__ __host__ double g3lhalo::kernel_function_3halo(double theta1, double 
 							  const double* p_lens1, const double* p_lens2, const double* w,
 							  const double* dwdz, const double* hmf, const double* P_lin,
 							  const double* b_h,  const double* concentration, const double* rho_bar,
-							  const double* n_bar1, const double* n_bar2, double H0, double OmM, double c,
-							  double pi)
+							  const double* n_bar1, const double* n_bar2)
 {
   // Index of z, m1, m2, and m3
   int z_ix=std::round((z-zmin)*Nbins/(zmax-zmin));
@@ -901,10 +895,7 @@ __device__ __host__ double g3lhalo::kernel_function_3halo(double theta1, double 
   double k2=l2/w_;
   double k3=l3/w_;
   
-  int k1_ix=std::round(std::log(k1/kmin)*Nbins/std::log(kmax/kmin));
-  int k2_ix=std::round(std::log(k2/kmin)*Nbins/std::log(kmax/kmin));
-  int k3_ix=std::round(std::log(k3/kmin)*Nbins/std::log(kmax/kmin));
-  
+ 
   // 3D Bispectrum
   double Bggd=1./nbar1/nbar2/rho_bar[z_ix]*hmf[z_ix*Nbins+m1_ix]
     *hmf[z_ix*Nbins+m2_ix]*hmf[z_ix*Nbins+m3_ix]
@@ -927,7 +918,7 @@ __global__ void g3lhalo::GPUkernel_3Halo(const double* params, double theta1, do
 					 const double* g, const double* p_lens1, const double* p_lens2, const double* w,
 					 const double* dwdz, const double* hmf, const double* P_lin, const double* b_h,
 					 const double* concentration, const double* rho_bar, const double* n_bar1,
-					 const double* n_bar2, double H0, double OmM, double* value, double c, double pi)
+					 const double* n_bar2, double* value)
 
 {
   ///Index of thread
@@ -948,7 +939,7 @@ __global__ void g3lhalo::GPUkernel_3Halo(const double* params, double theta1, do
       value[i]=kernel_function_3halo(theta1, theta2, theta3, l1, l2, phi, m1, m2, m3, z, zmin, zmax, mmin, mmax, kmin, kmax, Nbins,
 				     type1, type2, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1,
 				     beta2, g,  p_lens1, p_lens2,  w,  dwdz, hmf, P_lin, b_h, concentration, rho_bar, n_bar1,
-				     n_bar2, H0, OmM, c, pi);
+				     n_bar2);
 
     };
  
