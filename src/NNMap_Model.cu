@@ -465,7 +465,7 @@ int g3lhalo::integrand_1halo(unsigned ndim, size_t npts, const double* params, v
 				       nnmap->zmax,
 				       nnmap->mmin, nnmap->mmax, nnmap->Nbins, nnmap->dev_g, nnmap->dev_p_lens1, nnmap->dev_p_lens2,
 				       nnmap->dev_w, nnmap->dev_dwdz, nnmap->dev_hmf, nnmap->dev_concentration, nnmap->dev_rho_bar,
-				       nnmap->dev_n_bar1, nnmap->dev_n_bar2, nnmap->cosmology->H0, nnmap->cosmology->Omega_m,
+				       nnmap->dev_n_bar1, nnmap->dev_n_bar2,
 				       dev_value);
   
   cudaFree(dev_params); // Clean up
@@ -489,7 +489,7 @@ int g3lhalo::integrand_1halo(unsigned ndim, size_t npts, const double* params, v
 				      nnmap->Nbins, type1, type2, f1, f2, alpha1, alpha2,
 				      mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, nnmap->g,
 				      nnmap->p_lens1, nnmap->p_lens2, nnmap->w, nnmap->dwdz, nnmap->hmf, nnmap->concentration,
-				      nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2, nnmap->cosmology->H0, nnmap->cosmology->Omega_m);
+				      nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2);
     };
 
 #endif
@@ -505,8 +505,7 @@ __device__ __host__ double g3lhalo::kernel_function_1halo( double theta1, double
 							  const double* g, const double* p_lens1,
 							  const double* p_lens2, const double* w, const double* dwdz,
 							  const double* hmf, const double* concentration,
-							  const double* rho_bar, const double* n_bar1, const double* n_bar2,
-							  double H0, double OmM, double c, double pi)
+							  const double* rho_bar, const double* n_bar1, const double* n_bar2)
 {
   // Get inidices of z and m
   int z_ix=std::round(((z-zmin)*Nbins/(zmax-zmin)));
@@ -561,7 +560,7 @@ __global__ void g3lhalo::GPUkernel_1Halo(const double* params, double theta1, do
 					 int Nbins, const double* g, const double* p_lens1, const double* p_lens2,
 					 const double* w, const double* dwdz, const double* hmf, const double* concentration,
 					 const double* rho_bar, const double* n_bar1, const double* n_bar2,
-					 double H0, double OmM, double* value, double c, double pi)
+					 double* value)
 {
   ///Index of thread
   int thread_index=blockIdx.x * blockDim.x + threadIdx.x;
@@ -580,7 +579,7 @@ __global__ void g3lhalo::GPUkernel_1Halo(const double* params, double theta1, do
       
       value[i]=kernel_function_1halo(theta1, theta2, theta3, l1, l2, phi, m, z, zmin, zmax, mmin, mmax, Nbins, type1, type2, f1, f2,
 				     alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, g,
-				     p_lens1, p_lens2, w, dwdz, hmf, concentration, rho_bar, n_bar1, n_bar2, H0, OmM, c, pi);
+				     p_lens1, p_lens2, w, dwdz, hmf, concentration, rho_bar, n_bar1, n_bar2);
     };
 }
 #endif

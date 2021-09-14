@@ -232,6 +232,8 @@ namespace g3lhalo
 						double zmin, double zmax,
 						double mmin, double mmax, int Nbins, const double* hmf);
 
+
+ #if GPU
   /**
    * GPU Kernel for galaxy number density integration
    * @param ms Log10(Halo masses[Msun])
@@ -255,7 +257,8 @@ namespace g3lhalo
 				 double zmin, double zmax,
 				 double mmin, double mmax, int Nbins, const double* hmf, double* value);
 
-
+#endif
+  
   /**
    * Integrand for 1Halo term of NNM for use with cubature
    * @param ndim Dimension of integral (5 in this case)
@@ -321,9 +324,10 @@ namespace g3lhalo
 						   const double* g, const double* p_lens1,
 						   const double* p_lens2, const double* w, const double* dwdz,
 						   const double* hmf, const double* concentration,
-						   const double* rho_bar, const double* n_bar1, const double* n_bar2,
-						   double H0, double OmM, double c=g3lhalo::c, double pi=g3lhalo::pi);
+						   const double* rho_bar, const double* n_bar1, const double* n_bar2);
 
+
+#if GPU
   
   /**
    * GPU Kernel for 1Halo term of NNM
@@ -375,9 +379,9 @@ namespace g3lhalo
 				 double zmin, double zmax, double mmin, double mmax,
 				 int Nbins, const double* g, const double* p_lens1, const double* p_lens2, const double* w,
 				 const double* dwdz, const double* hmf, const double* concentration, const double* rho_bar,
-				 const double* n_bar1, const double* n_bar2, double H0, double OmM, double* value,
-				 double c=g3lhalo::c, double pi=g3lhalo::pi);
-
+				 const double* n_bar1, const double* n_bar2, double* value );
+#endif
+  
   /**
    * Integrand for 2Halo term of NNM for use with cubature
    * @param ndim Dimension of integral (6 in this case)
@@ -446,7 +450,7 @@ namespace g3lhalo
 						   const double* rho_bar, const double* n_bar1, const double* n_bar2, double H0,
 						   double OmM, double c=g3lhalo::c, double pi=g3lhalo::pi);
 
-
+#if GPU
   /**
    * GPU Kernel for 2Halo term of NNM
    * @param params Integration variables
@@ -499,7 +503,7 @@ namespace g3lhalo
 				 const double* hmf, const double* P_lin, const double* b_h, const double* concentration,
 				 const double* rho_bar, const double* n_bar1, const double* n_bar2, double H0, double OmM,
 				 double* value, double c=g3lhalo::c, double pi=g3lhalo::pi);
-
+#endif
 
   /**
    * Integrand for 3Halo term of NNM for use with cubature
@@ -574,7 +578,7 @@ namespace g3lhalo
 						   double pi=g3lhalo::pi);
 
 
-
+#if GPU
   /**
    * GPU Kernel for 2Halo term of NNM
    * @param params Integration variables
@@ -626,7 +630,8 @@ namespace g3lhalo
 				 const double* n_bar1, const double* n_bar2, double H0, double OmM,  double* value,
 				 double c=g3lhalo::c, double pi=g3lhalo::pi);
 
-
+#endif
+  
   /**
    * Kernel for Treelevel bispectrum
    * @param k1 k1 [1/Mpc]
