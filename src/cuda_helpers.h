@@ -1,6 +1,7 @@
 #ifndef G3LHALO_CUDA_HELPERS_H
 #define G3LHALO_CUDA_HELPERS_H
 
+#if GPU
 //For GPU Parallelisation, match this to maximum of computing GPU
 #define THREADS 256 //Maximum Threads per Block
 #define BLOCKS 184 //Maximum blocks for all SMs in GPU
@@ -16,5 +17,6 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
       if (abort) exit(code);
    }
 }
+#endif
 
 #endif //G3LHALO_CUDA_HELPERS_H
