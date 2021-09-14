@@ -1,9 +1,6 @@
 #ifndef G3LHALO_NNMAP_MODEL_H
 #define G3LHALO_NNMAP_MODEL_H
 
-#define GPU true
-#define VERBOSE true
-
 #include "Params.h"
 #include "Function.h"
 #include "constants.h"
@@ -17,9 +14,8 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include "Cosmology.h"
-#include "RandomNumbers.h"
 #include <fstream>
-#define NPOINTS 1e7
+
 
 
 namespace g3lhalo

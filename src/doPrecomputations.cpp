@@ -30,8 +30,9 @@ int main(int argc, char* argv[])
   std::string fn_bh=argv[15];
   std::string fn_conc=argv[16];
   
-
+#if VERBOSE
   std::cerr<<"Finished reading CLI"<<std::endl;
+#endif
   
   // Set up binning
 

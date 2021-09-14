@@ -1,11 +1,24 @@
 # define the Compiler to use
 GCC = g++-10 -std=c++20
 
-
 NVCC = nvcc -arch=sm_75 -rdc=true -Xcompiler -fopenmp -O3
 
 # define various compiler flags
-#CFLAGS = -std=c++17 -fopenmp -W -Wall -Wpointer-arith -Wformat-nonliteral -Winit-self -g
+CFLAGS = -fopenmp -W -Wall -Wpointer-arith -Wformat-nonliteral -Winit-self -g
+
+# define if GPU acceleration is used
+GPU = false
+
+ifeq ($(GPU), true)
+USERFLAGS += -DGPU=true
+endif
+
+# define if you want the verbose code version
+VERBOSE = true
+
+ifeq ($(VERBOSE), true)
+USERFLAGS += -DVERBOSE=true
+endif
 
 # define directory that should include executables
 BIN = ../bin/
@@ -41,35 +54,46 @@ OBJS_CU = $(SRCS_CU:.cu=.obj)
 # These files tell the compiler on which header files a file depends on
 DEPS = $(OBJS:%.o=%.d)
 
-
 # First make target, will be compiled, if "make" is called without arguments
-cpu_only: $(EXECS)
-	mv *.x ../bin/
-	@echo Successfully compiled CPU-part of project
-
+ifeq ($(GPU), true)
 all:	$(EXECS) $(EXECS_CU)
 	mv *.x ../bin/
-	@echo Successfully compiled whole project
+	@echo Successfully compiled whole project with GPU acceleration
+else
+all:	$(EXECS) $(EXECS_CU)
+	mv *.x ../bin/
+	@echo Successfully compiled whole project without GPU acceleration
+endif
 
 # Linking of all .o Files to create the EXECS
 $(EXECS): $(OBJS)
 	$(GCC) $(CFLAGS) $(INCLUDES) $(filter-out $(EXECS:.x=.o), $(OBJS)) $(@:.x=.o) -o $@ $(LFLAGS) $(LIBS)
 
+ifeq ($(GPU), true)
 $(EXECS_CU): $(OBJS_CU) $(OBJS)
 	$(NVCC) $(INCLUDES) $(filter-out $(EXECS_CU:.x=.obj),  $(OBJS_CU)) $(filter-out $(EXECS:.x=.o), $(OBJS)) $(@:.x=.obj) -o $@ $(LFLAGS) $(LIBS)
+else
+$(EXECS_CU): $(OBJS_CU) $(OBJS)
+	$(GCC) $(CFLAGS) $(INCLUDES) $(filter-out $(EXECS_CU:.x=.obj),  $(OBJS_CU)) $(filter-out $(EXECS:.x=.o), $(OBJS)) $(@:.x=.obj) -o $@ $(LFLAGS) $(LIBS)
+endif
+
 
 # Include all .d files
 -include $(DEPS)
-#-include $(DEPS_CU)
 
 # Build target for every single object file
 # -MMD flag creates a .d file with the same name as the .o file
 %.o: %.cpp
 #	$(GCC) $(CFLAGS) -MMD -c $< -o $@ $(LIBS)
-	$(GCC) $(CFLAGS) -c $< -o $@ $(LIBS)
+	$(GCC) $(CFLAGS) $(USERFLAGS) -c $< -o $@ $(LIBS)
 
+ifeq ($(GPU), true)
 %.obj: %.cu
-	$(NVCC) -c $< -o $@ $(LIBS)
+	$(NVCC) $(USERFLAGS) -c $< -o $@ $(LIBS)
+else
+%.obj: %.cu
+	$(GCC) $(CFLAGS) $(USERFLAGS) -xc++ -c $< -o $@ $(LIBS)
+endif
 
 # Cleaning of directory, removes .o, .x, and .d files
 clean:

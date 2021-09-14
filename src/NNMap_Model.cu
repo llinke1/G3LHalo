@@ -398,7 +398,7 @@ __device__ __host__ double g3lhalo::kernel_function_nbar(double m, double z, dou
   return  m*hmf[int(z_ix*Nbins+m_ix)]*(Nc+Ns);
 }
 
-
+#if GPU
 
 __global__ void g3lhalo::GPUkernel_nbar(const double* ms, double z, int npts, double alpha,
 					double mth, double sigma, double mprime, double beta,
@@ -417,7 +417,7 @@ __global__ void g3lhalo::GPUkernel_nbar(const double* ms, double z, int npts, do
       value[i] = kernel_function_nbar(m, z, alpha, mth, sigma, mprime, beta, zmin, zmax, mmin, mmax, Nbins, hmf);
     };
 }
-
+#endif
 /********************************************* 1 HALO TERM *****************************************************************/
 
 int g3lhalo::integrand_1halo(unsigned ndim, size_t npts, const double* params, void* thisPtr, unsigned fdim, double* value)
@@ -551,6 +551,7 @@ __device__ __host__ double g3lhalo::kernel_function_1halo( double theta1, double
   return l1*l2*m*l1*l2*apertureFilter(theta1*l1)*apertureFilter(theta2*l2)*apertureFilter(theta3*l3)*bggk;
 }
 
+#if GPU
 __global__ void g3lhalo::GPUkernel_1Halo(const double* params, double theta1, double theta2, double theta3,
 					 int npts, int type1, int type2, double f1,  double f2,
 					 double alpha1, double alpha2, double mmin1,
@@ -582,7 +583,7 @@ __global__ void g3lhalo::GPUkernel_1Halo(const double* params, double theta1, do
 				     p_lens1, p_lens2, w, dwdz, hmf, concentration, rho_bar, n_bar1, n_bar2, H0, OmM, c, pi);
     };
 }
-
+#endif
 /********************************************* 2 HALO TERM *****************************************************************/
 
 int g3lhalo::integrand_2halo(unsigned ndim, size_t npts, const double* params, void* thisPtr, unsigned fdim, double* value)
@@ -759,6 +760,7 @@ __device__ __host__ double g3lhalo::kernel_function_2halo(double theta1, double 
   }
 
 
+#if GPU
 
 __global__ void g3lhalo::GPUkernel_2Halo(const double* params, double theta1, double theta2, double theta3, int npts, int type1,
 					 int type2, double f1,  double f2, double alpha1, double alpha2, double mmin1, double mmin2,
@@ -791,7 +793,7 @@ __global__ void g3lhalo::GPUkernel_2Halo(const double* params, double theta1, do
     };
 }
 
-
+#endif
 /********************************************* 3 HALO TERM *****************************************************************/
 
 int g3lhalo::integrand_3halo(unsigned ndim, size_t npts, const double* params, void* thisPtr, unsigned fdim, double* value)
@@ -918,6 +920,7 @@ __device__ __host__ double g3lhalo::kernel_function_3halo(double theta1, double 
   return l1*l2*m1*m2*m3*l1*l2*apertureFilter(theta1*l1)*apertureFilter(theta2*l2)*apertureFilter(theta3*l3)*bggk;
 }
 
+#if GPU
 __global__ void g3lhalo::GPUkernel_3Halo(const double* params, double theta1, double theta2, double theta3, int npts, int type1,
 					 int type2,  double f1,  double f2, double alpha1, double alpha2, double mmin1, double mmin2,
 					 double sigma1, double sigma2, double mprime1, double mprime2, double beta1, double beta2,
@@ -951,7 +954,7 @@ __global__ void g3lhalo::GPUkernel_3Halo(const double* params, double theta1, do
     };
  
 }
-
+#endif
 /********************************************* OTHER FUNCTIONS *****************************************************************/
 
 
