@@ -41,7 +41,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This code can give halo model predictions for the Galaxy-Galaxy-Galaxy lensing (G3L) aperture statistics, and fit the free halo model parameters to measurements of the G3L aperture statistics. Currently, integrations are performed GPU accelerated, so an NVIDIA GPU + CUDA are necessary (although a pure CPU version is in preparation). The modelling code is complementary to the G3L measurement code in <a href="https://github.com/llinke1/G3LConGPU">G3LConGPU</a>. To learn more about G3L, you can check out <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...634A..13L/abstract">Linke et al.(2020a)</a>, <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..59L/abstract"> Linke et al.(2020b)</a>, and <a href="https://ui.adsabs.harvard.edu/abs/2019A%26A...622A.104S/abstract"> Simon et al.(2019)</a>. 
+This code can give halo model predictions for the Galaxy-Galaxy-Galaxy lensing (G3L) aperture statistics, and fit the free halo model parameters to measurements of the G3L aperture statistics. Integrations can be performed GPU accelerated, for which an NVIDIA GPU + CUDA are necessary (although a pure CPU version is also available). The modelling code is complementary to the G3L measurement code in <a href="https://github.com/llinke1/G3LConGPU">G3LConGPU</a>. To learn more about G3L, you can check out <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...634A..13L/abstract">Linke et al.(2020a)</a>, <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..59L/abstract"> Linke et al.(2020b)</a>, and <a href="https://ui.adsabs.harvard.edu/abs/2019A%26A...622A.104S/abstract"> Simon et al.(2019)</a>. 
 
 
 <!-- GETTING STARTED -->
@@ -50,6 +50,7 @@ This code can give halo model predictions for the Galaxy-Galaxy-Galaxy lensing (
 To get a local copy up and running follow these steps.
 
 ### Prerequisites
+To use this code solely with the CPU version, these simple requirements are all that is needed:
 * **g++** (Tested for version 9.3.0). 
 Under Ubuntu this can be installed with
   ```sh
@@ -65,8 +66,7 @@ sudo apt-get install libomp-dev
 ```sh
 sudo apt-get install python3.8
 ```
-
-As of now only a GPU-accelerated version is included, so additionally the following is needed:
+To use the GPU accelerated version, additionally the following is needed:
 
 * **NVIDIA graphics card with CUDA capability of at least 2**. Check here to see, if your card works: [https://en.wikipedia.org/wiki/CUDA#GPUs_supported].
 * **CUDA SDK Toolkit** (Tested for version 10.1, at least 7 needed!)
@@ -74,7 +74,6 @@ Can be downloaded here [https://developer.nvidia.com/accelerated-computing-toolk
 
 In general, some knowledge on CUDA and how GPUs work is useful to understand the code!
 
-A CPU-only version is in the works right now.
 
 ### Installation
 
@@ -88,9 +87,9 @@ A CPU-only version is in the works right now.
 cd src
 xdg-open Makefile
 ```
-4. Adapt the `-arch=` parameter to the architecture of your graphics card.
+4. If you want to use the CPU-only version, set the `GPU` parameter to `false`, if you want to use GPU acceleration set the `GPU` parameter to `true` and adapt the `-arch=` parameter to the architecture of your graphics card.
 5. run `make`
-6. Now, check if the folder `bin` was created and contains the necessary executables.
+6. Now, check if the folder `bin` was created and contains the necessary executables. Optionally, you could run `test_gpu.x` to check if the CUDA compilation worked.
 
 
 <!-- USAGE EXAMPLES -->
