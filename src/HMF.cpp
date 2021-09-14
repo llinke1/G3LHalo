@@ -41,9 +41,6 @@ double g3lhalo::Halomassfunction::b_h(const double& m, const double& z)
   // Get sigma^2(m, z)
   double sigma2=powerspectrum->sigma2(m, z);
 
-  // Get dsigma^2/dm
-  double dsigma2=powerspectrum->dsigma2dm(m, z);
-
   // Get critical density contrast
   double delta_c=cosmo->delta_c(z);
 
