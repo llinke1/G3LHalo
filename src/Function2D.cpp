@@ -60,7 +60,7 @@ double g3lhalo::Function2D::at(const double& x1, const double& x2)
   
   //Return Functionvalue
   int index=ix1*N2+ix2;
-  return y_values_.at(ix1*N2+ix2);
+  return y_values_.at(index);
 }
 
 int g3lhalo::Function2D::read(const int& Nbins, const double& min1, const double& max1, const double& min2, const double& max2, std::vector<double>& values)
