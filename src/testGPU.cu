@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cuda.h>
+#include "cuda_helpers.h"
 
 // QUICK TEST TO SEE IF CUDAMALLOC AND CUDAMEMCPY WORK
 
