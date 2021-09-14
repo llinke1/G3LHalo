@@ -10,7 +10,6 @@ g3lhalo::Powerspectrum::Powerspectrum(Cosmology* cosmo_):cosmo(cosmo_)
   {
     set_transfer_parameters();
     set_amplitude();
-    std::cerr<<amplitude<<std::endl;
   }
 
 void g3lhalo::Powerspectrum::set_transfer_parameters()
@@ -177,8 +176,8 @@ double g3lhalo::Powerspectrum::transfer(const double& k)
   xx_tilde = k*s_tilde;
 
   T_b_T0 = T_c_ln_nobeta/(T_c_ln_nobeta+T_c_C_noalpha*q*q);
-  T_b = sin(xx_tilde)/(xx_tilde)*(T_b_T0/(1.+(xx/5.2, 2))+
-				  alpha_b/(1.+(beta_b/xx, 3))*exp(-pow(k/k_silk,1.4)));
+  T_b = sin(xx_tilde)/(xx_tilde)*(T_b_T0/(1.+pow(xx/5.2, 2))+
+				  alpha_b/(1.+pow(beta_b/xx, 3))*exp(-pow(k/k_silk,1.4)));
   
   f_baryon = obhh/omhh;
   T_full = f_baryon*T_b + (1.-f_baryon)*T_c;
