@@ -111,7 +111,8 @@ int main(int argc, char* argv[])
   params_gsl=gsl_vector_alloc(params.N);
 
   // Calculate chi2 for samplings
-  for(int i=0; i<samplings.size(); i++)
+  int Nsamplings=samplings.size();
+  for(int i=0; i<Nsamplings; i++)
     {
       getGSLFromParams(&samplings[i], &priors, params_gsl);
 

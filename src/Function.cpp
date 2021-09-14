@@ -107,7 +107,8 @@ int g3lhalo::Function::readLog(const int& Nbins, const double& min, const double
       double val=at(x);
       values.push_back(val);
     };
-  if(values.size()!=Nbins)
+  int Nvalues=values.size();
+  if(Nvalues!=Nbins)
     {
       std::cerr<<"Function::readLog: Couldn't read function! Exiting."<<std::endl;
       exit(1);
