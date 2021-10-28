@@ -7,10 +7,16 @@ NVCC = nvcc -arch=sm_75 -rdc=true -Xcompiler -fopenmp -O3
 CFLAGS = -fopenmp -W -Wall -Wpointer-arith -Wformat-nonliteral -Winit-self -g
 
 # define if GPU acceleration is used
-GPU = false
+GPU = true
 
 ifeq ($(GPU), true)
 USERFLAGS += -DGPU=true
+endif
+
+# define if Scaling of Satellite variance is used
+SCALING = true
+ifeq ($(SCALING), true)
+USERFLAGS += -DSCALING=true
 endif
 
 # define if you want the verbose code version

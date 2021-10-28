@@ -10,7 +10,13 @@
 
 int main(int argc, char* argv[])
 {
+#if SCALING 
+std::cerr<<"Uses rescaling"<<std::endl;
+  int n_params=21;
+#else
   int n_params=19;
+#endif
+
   std::string usage="./calculateNNMap_twoPop.x \n Cosmology File \n minimal redshift \n maximal redshift \n minimal halo mass [Msun] \n maximal halo mass [Msun] \n minimal k [1/Mpc] \n maximal k [1/Mpc] Number of bins \n File for lensing efficiency \n File for lens redshift distribution \n File for lens redshift distribution \n File for comoving distance \n File for derivative of comoving distance \n File for Halo Mass function \n File for Linear power spectrum \n File for Halo bias \n File for concentration \n File for Halomodel Params \n File with thetas";
   std::string example="./calculateNNMap_twoPop.x cosmo.param 0.1 2 1e10 1e17 0.01 1000 256 g.dat w.dat dwdz.dat hmf.dat Plin.dat b_h.dat conc.dat hod.param thetas.dat";
 
@@ -38,6 +44,12 @@ int main(int argc, char* argv[])
 
   std::string fn_thetas=argv[19];
 
+#if SCALING
+  std::string fn_scaling1=argv[20];
+  std::string fn_scaling2=argv[21];
+#endif
+  
+
 #if VERBOSE
   std::cerr<<"Finished reading cli"<<std::endl;
 #endif
@@ -47,6 +59,11 @@ int main(int argc, char* argv[])
   g3lhalo::Function plens2(fn_plens2, 0.0);
   g3lhalo::Function w(fn_w, 0.0);
   g3lhalo::Function dwdz(fn_dwdz, 0.0);
+
+#if SCALING
+  g3lhalo::Function scaling1(fn_scaling1, 1.0);
+  g3lhalo::Function scaling2(fn_scaling2, 1.0);
+#endif
 
 #if VERBOSE
   std::cerr<<"Finished assigning functions1D"<<std::endl;
@@ -78,6 +95,17 @@ int main(int argc, char* argv[])
       std::cerr<<"Problem reading in files. Exiting."<<std::endl;
       exit(1);
     };
+#if SCALING
+    std::vector<double> scaling1_val, scaling2_val;
+
+    if(scaling1.read(Nbins, mmin, mmax, scaling1_val)
+      || scaling2.read(Nbins, mmin, mmax, scaling2_val))
+      {
+        std::cerr<<"Problem reading in files. Exiting."<<std::endl;
+        exit(1);
+      };
+
+#endif
 
 #if VERBOSE
   std::cerr<<"Finished reading in Functions"<<std::endl;
@@ -86,7 +114,13 @@ int main(int argc, char* argv[])
   // Set up cosmology
   g3lhalo::Cosmology cosmo(fn_cosmo);
   
-  g3lhalo::NNMap_Model nnmap(&cosmo, zmin, zmax, kmin, kmax, mmin, mmax, Nbins, g_val.data(), plens1_val.data(), plens2_val.data(), w_val.data(), dwdz_val.data(), hmf_val.data(), P_lin_val.data(), b_h_val.data(), concentration_val.data(), &params);
+#if SCALING
+  g3lhalo::NNMap_Model nnmap(&cosmo, zmin, zmax, kmin, kmax, mmin, mmax, Nbins, g_val.data(), plens1_val.data(), plens2_val.data(), 
+    w_val.data(), dwdz_val.data(), hmf_val.data(), P_lin_val.data(), b_h_val.data(), concentration_val.data(), scaling1_val.data(), scaling2_val.data(), &params);
+#else
+  g3lhalo::NNMap_Model nnmap(&cosmo, zmin, zmax, kmin, kmax, mmin, mmax, Nbins, g_val.data(), plens1_val.data(), plens2_val.data(), 
+    w_val.data(), dwdz_val.data(), hmf_val.data(), P_lin_val.data(), b_h_val.data(), concentration_val.data(), &params);
+#endif
 
 #if VERBOSE
   std::cerr<<"Finished initializing NNMap"<<std::endl;

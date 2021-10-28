@@ -8,6 +8,8 @@ void g3lhalo::checkCmdLine(int argc, int n_params, std::string usage, std::strin
     if(argc != n_params+1)
       {
 	std::cerr<<"Wrong number of CMD Line arguments"<<std::endl;
+  std::cerr<<"Expected:"<<n_params+1<<std::endl;
+  std::cerr<<"Got:"<<argc<<std::endl;
 	std::cerr<<"Usage:"<<usage<<std::endl;
 	std::cerr<<"Example:"<<example<<std::endl;
 	exit(1);

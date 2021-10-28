@@ -15,7 +15,8 @@
 
 
 
-g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_)
+g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
+  double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_)
 {
 
   // Set parameters
@@ -99,6 +100,104 @@ g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, co
 #endif // VERBOSE
 }
 
+g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
+  double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, double* scaling1_, double* scaling2_, Params* params_)
+{
+
+  // Set parameters
+  cosmology=cosmology_;
+  
+  zmin=zmin_;
+  zmax=zmax_;
+  kmin=kmin_;
+  kmax=kmax_;
+  mmin=mmin_;
+  mmax=mmax_;
+  Nbins=Nbins_;
+  g=g_;
+  p_lens1=p_lens1_;
+  p_lens2=p_lens2_;
+  w=w_;
+  dwdz=dwdz_;
+  hmf=hmf_;
+  P_lin=P_lin_;
+  b_h=b_h_;
+  concentration=concentration_;
+  params=params_;
+#if SCALING
+  scaling1=scaling1_;
+  scaling2=scaling2_;
+#endif
+
+  zmin_integral=zmin;
+  zmax_integral=zmax-(zmax-zmin)/Nbins;
+  mmin_integral=mmin;
+  mmax_integral=exp(log(mmin)+log(mmax/mmin)*(Nbins-1)/Nbins);
+  
+  
+#if GPU
+  // Allocation of memory for precomputed functions on device
+  CUDA_SAFE_CALL(cudaMalloc(&dev_g, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_p_lens1, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_p_lens2, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_w, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_dwdz, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_hmf, Nbins*Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_P_lin, Nbins*Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_b_h, Nbins*Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_concentration, Nbins*Nbins*sizeof(double)));
+
+#if SCALING
+  CUDA_SAFE_CALL(cudaMalloc(&dev_scaling1, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_scaling2, Nbins*sizeof(double)));
+#endif
+
+
+  // Copying of precomputed functions to device
+  CUDA_SAFE_CALL(cudaMemcpy(dev_g, g, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_p_lens1, p_lens1, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_p_lens2, p_lens2, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_w, w, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_dwdz, dwdz, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_hmf, hmf, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_P_lin, P_lin, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_b_h, b_h, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_concentration, concentration, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+
+#if SCALING
+  CUDA_SAFE_CALL(cudaMemcpy(dev_scaling1, scaling1, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dev_scaling2, scaling2, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+#endif
+
+  // Allocation of memory for densities on device
+  CUDA_SAFE_CALL(cudaMalloc(&dev_rho_bar, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_n_bar1, Nbins*sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_n_bar2, Nbins*sizeof(double)));
+  
+#endif // GPU
+
+  // Allocattion of memory for densities on Host
+  rho_bar = (double*) malloc(Nbins*sizeof(double));
+  n_bar1 = (double*) malloc(Nbins*sizeof(double));
+  n_bar2 = (double*) malloc(Nbins*sizeof(double));
+
+#if VERBOSE
+  std::cerr<<"Finished memory setting"<<std::endl;
+#endif //VERBOSE
+
+  // Calculate densities (stored in rho_bar, n_bar1 and n_bar2)
+  updateDensities();
+
+#if GPU
+  // Copying of densities to device
+  CUDA_SAFE_CALL(cudaMemcpy(dev_rho_bar, rho_bar, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+#endif
+#if VERBOSE
+  std::cerr<<"Finished initalizing NNMap"<<std::endl;
+#endif // VERBOSE
+}
+
+
 g3lhalo::NNMap_Model::~NNMap_Model()
 {
 #if GPU // Free device memory
@@ -114,11 +213,20 @@ g3lhalo::NNMap_Model::~NNMap_Model()
   cudaFree(dev_rho_bar);
   cudaFree(dev_n_bar1);
   cudaFree(dev_n_bar2);
+
+#if SCALING
+  cudaFree(dev_scaling1);
+  cudaFree(dev_scaling2);
+#endif
 #endif //GPU
   //Free host memory
   free(rho_bar);
   free(n_bar1);
-  free(n_bar2);  
+  free(n_bar2); 
+#if SCALING
+  free(scaling1);
+  free(scaling2); 
+#endif
 }
 
 void g3lhalo::NNMap_Model::updateParams(Params* params_)
@@ -460,14 +568,23 @@ int g3lhalo::integrand_1halo(unsigned ndim, size_t npts, const double* params, v
   CUDA_SAFE_CALL(cudaMemcpy(dev_params, params, npts*ndim*sizeof(double), cudaMemcpyHostToDevice));
 
   // Do calculation
+  #if SCALING
   GPUkernel_1Halo<<<BLOCKS, THREADS>>>(dev_params, theta1, theta2, theta3, npts, type1, type2, f1, f2, alpha1, alpha2,
 				       mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, nnmap->zmin,
 				       nnmap->zmax,
 				       nnmap->mmin, nnmap->mmax, nnmap->Nbins, nnmap->dev_g, nnmap->dev_p_lens1, nnmap->dev_p_lens2,
 				       nnmap->dev_w, nnmap->dev_dwdz, nnmap->dev_hmf, nnmap->dev_concentration, nnmap->dev_rho_bar,
 				       nnmap->dev_n_bar1, nnmap->dev_n_bar2,
-				       dev_value);
-  
+				       dev_value,
+               nnmap->dev_scaling1, nnmap->dev_scaling2);
+  #else
+  GPUkernel_1Halo<<<BLOCKS, THREADS>>>(dev_params, theta1, theta2, theta3, npts, type1, type2, f1, f2, alpha1, alpha2,
+				       mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, nnmap->zmin,
+				       nnmap->zmax,
+				       nnmap->mmin, nnmap->mmax, nnmap->Nbins, nnmap->dev_g, nnmap->dev_p_lens1, nnmap->dev_p_lens2,
+				       nnmap->dev_w, nnmap->dev_dwdz, nnmap->dev_hmf, nnmap->dev_concentration, nnmap->dev_rho_bar,
+				       nnmap->dev_n_bar1, nnmap->dev_n_bar2, dev_value);
+  #endif
   cudaFree(dev_params); // Clean up
 
   // Copy values from device to host
@@ -485,18 +602,27 @@ int g3lhalo::integrand_1halo(unsigned ndim, size_t npts, const double* params, v
       double phi = params[i*ndim+2];
       double m = pow(10, params[i*ndim+3]);
       double z = params[i*ndim+4];
+      #if SCALING
+      value[i]= kernel_function_1halo(theta1, theta2, theta3, l1, l2, phi, m, z, nnmap->zmin, nnmap->zmax, nnmap->mmin, nnmap->mmax,
+				      nnmap->Nbins, type1, type2, f1, f2, alpha1, alpha2,
+				      mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, nnmap->g,
+				      nnmap->p_lens1, nnmap->p_lens2, nnmap->w, nnmap->dwdz, nnmap->hmf, nnmap->concentration,
+				      nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2, nnmap->scaling1, nnmap->scaling2);
+      #else
       value[i]= kernel_function_1halo(theta1, theta2, theta3, l1, l2, phi, m, z, nnmap->zmin, nnmap->zmax, nnmap->mmin, nnmap->mmax,
 				      nnmap->Nbins, type1, type2, f1, f2, alpha1, alpha2,
 				      mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, nnmap->g,
 				      nnmap->p_lens1, nnmap->p_lens2, nnmap->w, nnmap->dwdz, nnmap->hmf, nnmap->concentration,
 				      nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2);
+      #endif
     };
 
 #endif
   return 0; //Success :)
 }
 
-__device__ __host__ double g3lhalo::kernel_function_1halo( double theta1, double theta2, double theta3, double l1, double l2, double phi, double m, double z,
+__device__ __host__ double g3lhalo::kernel_function_1halo( double theta1, double theta2, 
+double theta3, double l1, double l2, double phi, double m, double z,
 							  double zmin, double zmax, double mmin, double mmax, int Nbins,
 							  int type1, int type2,
 							  double f1,  double f2, double alpha1, double alpha2, double mmin1,
@@ -505,7 +631,7 @@ __device__ __host__ double g3lhalo::kernel_function_1halo( double theta1, double
 							  const double* g, const double* p_lens1,
 							  const double* p_lens2, const double* w, const double* dwdz,
 							  const double* hmf, const double* concentration,
-							  const double* rho_bar, const double* n_bar1, const double* n_bar2)
+							  const double* rho_bar, const double* n_bar1, const double* n_bar2, const double* scaling1, const double* scaling2)
 {
   // Get inidices of z and m
   int z_ix=std::round(((z-zmin)*Nbins/(zmax-zmin)));
@@ -513,21 +639,26 @@ __device__ __host__ double g3lhalo::kernel_function_1halo( double theta1, double
   
   // Get lens galaxy densities
   double nbar1, nbar2;
+  double scale1, scale2;
   if(type1==1)
     {
       nbar1=n_bar1[z_ix];
+      scale1=(scaling1==NULL? 1 : scaling1[m_ix]);
     }
   else
     {
       nbar1=n_bar2[z_ix];
+      scale1=(scaling2==NULL? 1 : scaling2[m_ix]);
     };
   if(type2==1)
     {
       nbar2=n_bar1[z_ix];
+      scale2=(scaling1==NULL? 1 : scaling1[m_ix]);
     }
   else
     {
       nbar2=n_bar2[z_ix];
+      scale2=(scaling2==NULL? 1 : scaling2[m_ix]);
     };
   
 
@@ -537,12 +668,21 @@ __device__ __host__ double g3lhalo::kernel_function_1halo( double theta1, double
   double k1=l1/w_;
   double k2=l2/w_;
   double k3=l3/w_;
-  
-  // 3D Galaxy-Galaxy-Matter Bispectrum
+
+
+// 3D Galaxy-Galaxy-Matter Bispectrum
   double Bggd=1./nbar1/nbar2/rho_bar[z_ix]*hmf[z_ix*Nbins+m_ix]*m*u_NFW(k3, m, z, 1, zmin, zmax, mmin, mmax, Nbins, rho_bar,
-									concentration)
-    *G_gg(k1, k2, m, z, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, zmin, zmax,
+									concentration); 
+  if(scaling1==NULL)
+  { 
+    Bggd*=G_gg(k1, k2, m, z, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, zmin, zmax,
 	  mmin, mmax, Nbins, rho_bar, concentration, (type1==type2));
+  }
+  else
+  {
+    Bggd*=G_gg(k1, k2, m, z, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, zmin, zmax,
+	  mmin, mmax, Nbins, rho_bar, concentration, (type1==type2), scale1, scale2);
+  };
 
   // 2D Galaxy-Galaxy-Convergence Bispectrum
   double bggk=Bggd/dwdz[z_ix]*g[z_ix]*p_lens1[z_ix]*p_lens2[z_ix]/w_/w_/w_*(1.+z);
@@ -560,7 +700,7 @@ __global__ void g3lhalo::GPUkernel_1Halo(const double* params, double theta1, do
 					 int Nbins, const double* g, const double* p_lens1, const double* p_lens2,
 					 const double* w, const double* dwdz, const double* hmf, const double* concentration,
 					 const double* rho_bar, const double* n_bar1, const double* n_bar2,
-					 double* value)
+					 double* value, const double* scaling1, const double* scaling2)
 {
   ///Index of thread
   int thread_index=blockIdx.x * blockDim.x + threadIdx.x;
@@ -576,10 +716,18 @@ __global__ void g3lhalo::GPUkernel_1Halo(const double* params, double theta1, do
       double m=pow(10, params[i*5+3]);
       double z=params[i*5+4];
 
-      
-      value[i]=kernel_function_1halo(theta1, theta2, theta3, l1, l2, phi, m, z, zmin, zmax, mmin, mmax, Nbins, type1, type2, f1, f2,
-				     alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, g,
-				     p_lens1, p_lens2, w, dwdz, hmf, concentration, rho_bar, n_bar1, n_bar2);
+      if(scaling1==NULL)
+      {
+        value[i]=kernel_function_1halo(theta1, theta2, theta3, l1, l2, phi, m, z, zmin, zmax, mmin, mmax, Nbins, type1, type2, f1, f2,
+	  			     alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, g,
+		  		     p_lens1, p_lens2, w, dwdz, hmf, concentration, rho_bar, n_bar1, n_bar2);
+      }
+      else
+      {
+        value[i]=kernel_function_1halo(theta1, theta2, theta3, l1, l2, phi, m, z, zmin, zmax, mmin, mmax, Nbins, type1, type2, f1, f2,
+	  			     alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, g,
+		  		     p_lens1, p_lens2, w, dwdz, hmf, concentration, rho_bar, n_bar1, n_bar2, scaling1, scaling2);
+      };
     };
 }
 #endif
@@ -642,12 +790,22 @@ int g3lhalo::integrand_2halo(unsigned ndim, size_t npts, const double* params, v
       CUDA_SAFE_CALL(cudaMalloc(&dev_value, fdim*n_it*sizeof(double)));
 
       // Do calculation
+      #if SCALING
+      GPUkernel_2Halo<<<BLOCKS, THREADS>>>(dev_params, theta1, theta2, theta3, n_it, type1, type2, f1, f2, alpha1, alpha2,
+					   mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, nnmap->zmin,
+					   nnmap->zmax, nnmap->mmin, nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins,
+					   nnmap->dev_g, nnmap->dev_p_lens1, nnmap->dev_p_lens2, nnmap->dev_w, nnmap->dev_dwdz,
+					   nnmap->dev_hmf, nnmap->dev_P_lin, nnmap->dev_b_h, nnmap->dev_concentration,
+					   nnmap->dev_rho_bar, nnmap->dev_n_bar1, nnmap->dev_n_bar2, dev_value,
+             nnmap->dev_scaling1, nnmap->dev_scaling2);
+      #else
       GPUkernel_2Halo<<<BLOCKS, THREADS>>>(dev_params, theta1, theta2, theta3, n_it, type1, type2, f1, f2, alpha1, alpha2,
 					   mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, nnmap->zmin,
 					   nnmap->zmax, nnmap->mmin, nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins,
 					   nnmap->dev_g, nnmap->dev_p_lens1, nnmap->dev_p_lens2, nnmap->dev_w, nnmap->dev_dwdz,
 					   nnmap->dev_hmf, nnmap->dev_P_lin, nnmap->dev_b_h, nnmap->dev_concentration,
 					   nnmap->dev_rho_bar, nnmap->dev_n_bar1, nnmap->dev_n_bar2, dev_value);
+      #endif
 
       cudaFree(dev_params); //< Clean up
 
@@ -676,11 +834,20 @@ int g3lhalo::integrand_2halo(unsigned ndim, size_t npts, const double* params, v
       double m1 = pow(10, params[i*ndim+3]);
       double m2 = pow(10, params[i*ndim+4]);
       double z = params[i*ndim+5];
+      #if SCALING
+      value[i]= kernel_function_2halo(theta1, theta2, theta3, l1, l2, phi, m1, m2, z, nnmap->zmin, nnmap->zmax, nnmap->mmin,
+				      nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins, type1, type2, f1,  f2, alpha1, alpha2,
+				      mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A,  epsilon, nnmap->g,
+				      nnmap->p_lens1, nnmap->p_lens2, nnmap->w,  nnmap->dwdz, nnmap->hmf, nnmap->P_lin, nnmap->b_h,
+				      nnmap->concentration, nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2, 
+              nnmap->scaling1, nnmap->scaling2);
+      #else
       value[i]= kernel_function_2halo(theta1, theta2, theta3, l1, l2, phi, m1, m2, z, nnmap->zmin, nnmap->zmax, nnmap->mmin,
 				      nnmap->mmax, nnmap->kmin, nnmap->kmax, nnmap->Nbins, type1, type2, f1,  f2, alpha1, alpha2,
 				      mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A,  epsilon, nnmap->g,
 				      nnmap->p_lens1, nnmap->p_lens2, nnmap->w,  nnmap->dwdz, nnmap->hmf, nnmap->P_lin, nnmap->b_h,
 				      nnmap->concentration, nnmap->rho_bar, nnmap->n_bar1, nnmap->n_bar2);
+      #endif
     };
 
 #endif
@@ -697,7 +864,8 @@ __device__ __host__ double g3lhalo::kernel_function_2halo(double theta1, double 
 							  const double* g, const double* p_lens1, const double* p_lens2,
 							  const double* w, const double* dwdz, const double* hmf, const double* P_lin,
 							  const double* b_h,  const double* concentration, const double* rho_bar,
-							  const double* n_bar1, const double* n_bar2)
+							  const double* n_bar1, const double* n_bar2,
+                const double* scaling1, const double* scaling2)
   {
     
     // Get Indices of z, m1, and m2
@@ -705,13 +873,29 @@ __device__ __host__ double g3lhalo::kernel_function_2halo(double theta1, double 
     int m1_ix=std::round(std::log(m1/mmin)*Nbins/std::log(mmax/mmin));
     int m2_ix=std::round(std::log(m2/mmin)*Nbins/std::log(mmax/mmin));
 
-    // Get galaxy number densities
+    // Get lens galaxy densities
     double nbar1, nbar2;
-    if(type1==1) nbar1=n_bar1[z_ix];
-    else nbar1=n_bar2[z_ix];
-    
-    if(type2==1) nbar2=n_bar1[z_ix];
-    else nbar2=n_bar2[z_ix];
+    double scale1, scale2;
+    if(type1==1)
+    {
+      nbar1=n_bar1[z_ix];
+      scale1=(scaling1==NULL? 1 : scaling1[m2_ix]);
+    }
+  else
+    {
+      nbar1=n_bar2[z_ix];
+      scale1=(scaling2==NULL? 1 : scaling2[m2_ix]);
+    };
+  if(type2==1)
+    {
+      nbar2=n_bar1[z_ix];
+      scale2=(scaling1==NULL? 1 : scaling1[m2_ix]);
+    }
+  else
+    {
+      nbar2=n_bar2[z_ix];
+      scale2=(scaling2==NULL? 1 : scaling2[m2_ix]);
+    };
 
     double w_=w[z_ix]; //Comoving distance [Mpc]
     double l3=sqrt(l1*l1+l2*l2+2*l1*l2*cos(phi));
@@ -736,7 +920,10 @@ __device__ __host__ double g3lhalo::kernel_function_2halo(double theta1, double 
     else Pk3=P_lin[z_ix*Nbins]/kmin*k3;
 
     // 3D Bispectrum
-    double Bggd=1./nbar1/nbar2/rho_bar[z_ix]*hmf[z_ix*Nbins+m1_ix]*hmf[z_ix*Nbins+m2_ix]*b_h[z_ix*Nbins+m1_ix]*b_h[z_ix*Nbins+m2_ix]
+    double Bggd;
+    if(scaling1==NULL)
+    {
+      Bggd=1./nbar1/nbar2/rho_bar[z_ix]*hmf[z_ix*Nbins+m1_ix]*hmf[z_ix*Nbins+m2_ix]*b_h[z_ix*Nbins+m1_ix]*b_h[z_ix*Nbins+m2_ix]
       *(m1*u_NFW(k3, m1, z, 1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
 	*G_gg(k1, k2, m2, z, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, zmin,
 	      zmax, mmin, mmax, Nbins, rho_bar, concentration, (type1==type2))*Pk3
@@ -748,6 +935,22 @@ __device__ __host__ double g3lhalo::kernel_function_2halo(double theta1, double 
 	*G_g(k2, m1, z, f2, alpha2, mmin2, sigma2, mprime2, beta2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
 	*G_g(k1, m2, z, f1, alpha1, mmin1, sigma1, mprime1, beta1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
 	*Pk2);
+    }
+    else
+    {
+      Bggd=1./nbar1/nbar2/rho_bar[z_ix]*hmf[z_ix*Nbins+m1_ix]*hmf[z_ix*Nbins+m2_ix]*b_h[z_ix*Nbins+m1_ix]*b_h[z_ix*Nbins+m2_ix]
+      *(m1*u_NFW(k3, m1, z, 1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
+	*G_gg(k1, k2, m2, z, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, zmin,
+	      zmax, mmin, mmax, Nbins, rho_bar, concentration, (type1==type2), scale1, scale2)*Pk3
+	+m2*u_NFW(k3, m2, z, 1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
+	*G_g(k1, m1, z, f1, alpha1, mmin1, sigma1, mprime1, beta1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
+	*G_g(k2, m2, z, f2, alpha2, mmin2, sigma2, mprime2, beta2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
+	*Pk1
+	+m2*u_NFW(k3, m2, z, 1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
+	*G_g(k2, m1, z, f2, alpha2, mmin2, sigma2, mprime2, beta2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
+	*G_g(k1, m2, z, f1, alpha1, mmin1, sigma1, mprime1, beta1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
+	*Pk2);
+    };
     
     // 2D Bispectrum
     double bggk=1./dwdz[z_ix]*g[z_ix]*p_lens1[z_ix]*p_lens2[z_ix]/w_/w_/w_*(1.+z)*Bggd;
@@ -765,7 +968,7 @@ __global__ void g3lhalo::GPUkernel_2Halo(const double* params, double theta1, do
 					 double kmax, int Nbins, const double* g, const double* p_lens1, const double* p_lens2,
 					 const double* w, const double* dwdz, const double* hmf, const double* P_lin,
 					 const double* b_h, const double* concentration, const double* rho_bar, const double* n_bar1,
-					 const double* n_bar2, double* value)
+					 const double* n_bar2, double* value, const double* scaling1, const double* scaling2)
 {
   ///Index of thread
   int thread_index=blockIdx.x * blockDim.x + threadIdx.x;
@@ -781,10 +984,19 @@ __global__ void g3lhalo::GPUkernel_2Halo(const double* params, double theta1, do
       double m2=pow(10, params[i*6+4]);
       double z=params[i*6+5];
 
-
+      if(scaling1==NULL)
+      {
       value[i]=kernel_function_2halo(theta1, theta2, theta3, l1, l2, phi, m1, m2, z, zmin, zmax, mmin, mmax, kmin, kmax, Nbins, type1,
 				     type2, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A,
 				     epsilon, g, p_lens1, p_lens2, w, dwdz, hmf, P_lin, b_h, concentration, rho_bar, n_bar1, n_bar2);
+      }
+      else
+      {
+        value[i]=kernel_function_2halo(theta1, theta2, theta3, l1, l2, phi, m1, m2, z, zmin, zmax, mmin, mmax, kmin, kmax, Nbins, type1,
+				     type2, f1, f2, alpha1, alpha2, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A,
+				     epsilon, g, p_lens1, p_lens2, w, dwdz, hmf, P_lin, b_h, concentration, rho_bar, n_bar1, n_bar2,
+             scaling1, scaling2);
+      }
     };
 }
 
@@ -1141,11 +1353,14 @@ __host__ __device__ double g3lhalo::Nsat(double m, double mth, double sigma, dou
      return 0.5*alpha*(1+erf(log(m/mth)/sigma/1.414213562));
  }
 
-__host__ __device__ double g3lhalo::NsatNsat(double m, double mmin1, double mmin2, double sigma1, double sigma2, double mprime1, double mprime2, double beta1, double beta2, double A, double epsilon, bool sameType)
+__host__ __device__ double g3lhalo::NsatNsat(double m, double mmin1, double mmin2, double sigma1, double sigma2, double mprime1, double mprime2, double beta1, double beta2, double A, double epsilon, 
+  bool sameType, double scale1, double scale2)
 {
   double Ns1=Nsat(m, mmin1, sigma1, mprime1, beta1);
 
-  if(sameType) return Ns1*Ns1; 
+  if(sameType && scale1==1) return Ns1*Ns1;
+  
+  if(sameType) return (Ns1+scale1*scale1-1)*Ns1;
   
   double Ns2=Nsat(m, mmin2, sigma2, mprime2, beta2);
  
@@ -1170,7 +1385,7 @@ __host__ __device__ double g3lhalo::G_gg(double k1, double k2, double m, double 
 					 double mmin2, double sigma1, double sigma2, double mprime1,
 					 double mprime2, double beta1, double beta2, double A, double epsilon,
 					 double zmin, double zmax, double mmin, double mmax,
-					 int Nbins, const double* rho_bar, const double* concentration, bool sameType)
+					 int Nbins, const double* rho_bar, const double* concentration, bool sameType, double scale1, double scale2)
 {
   double Nc1=Ncen(m, alpha1, mmin1, sigma1);
   double Nc2=Ncen(m, alpha2, mmin2, sigma2);
@@ -1179,7 +1394,7 @@ __host__ __device__ double g3lhalo::G_gg(double k1, double k2, double m, double 
   
   return Nc1*Ns2*u_NFW(k2, m, z, f2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
     + Nc2*Ns1*u_NFW(k1, m, z, f1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
-    + NsatNsat(m, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, sameType)
+    + NsatNsat(m, mmin1, mmin2, sigma1, sigma2, mprime1, mprime2, beta1, beta2, A, epsilon, sameType, scale1, scale2)
     *u_NFW(k1, m, z, f1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration)
     *u_NFW(k2, m, z, f2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration);
 }

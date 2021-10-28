@@ -58,6 +58,10 @@ namespace g3lhalo
     double* P_lin; //< Linear Power spectrum [1/Mpc^3]
     double* b_h; //< Linear Halo bias
     double* concentration; //< Concentration of NFW profiles
+#if SCALING
+    double* scaling1; //<Values for rescaling of sigma^2 for a type satellites
+    double* scaling2; //<Values for rescaling of sigma^2 for b type satellites
+#endif
 
     /// Lookup tables that are updated in initialization
     double* rho_bar; //< Matter density [Msun/Mpc^3]
@@ -73,6 +77,10 @@ namespace g3lhalo
     double* dev_P_lin; //< Linear Power spectrum [1/Mpc^3]
     double* dev_b_h; //< Linear Halo bias
     double* dev_concentration; //< Concentration of NFW profiles
+#if SCALING
+    double* dev_scaling1; //<Values for rescaling of sigma^2 for a type satellites
+    double* dev_scaling2; //<Values for rescaling of sigma^2 for b type satellites
+#endif
 
     /// Lookup tables that are updated in initialization
     double* dev_rho_bar; //< Matter density [Msun /Mpc^3]
@@ -109,7 +117,41 @@ namespace g3lhalo
      * @param concentration_ Concentration of NFW profiles
      * @param params_ HOD parameters  
      */
-    NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_);
+    NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
+    double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_);
+#if SCALING
+
+/**
+     * Constructor from values
+     * Sets Parameter members to the values provided and calculates matter- and galaxy densities
+     * If GPU is set to true, copies look-up tables to device memory (including memory allocation)
+     *
+     * @param cosmology_ Cosmological parameters (flat LCDM)
+     * @param zmin_ Minimal redshift for binning
+     * @param zmax_ Maximal redshift for binning
+     * @param kmin_ Minimal k for binning [1/Mpc]
+     * @param kmax_ Maximal k for binning [1/Mpc]
+     * @param mmin_ Minimal halomass for binning [Msun]
+     * @param mmax_ Maximal halomass for binning [Msun]
+     * @param Nbins_ Number of bins
+     * @param g_ Lensing efficiency
+     * @param p_lens1_ Lens galaxy redshift distribution
+     * @param p_lens2_ Lens galaxy redshift distribution
+     * @param w_ Comoving distance [Mpc]
+     * @param dwdz_ Derivative of comoving distance wrt redshift [Mpc]
+     * @param hmf_ Halo mass function [1/Mpc^3/Msun]
+     * @param P_lin_ Linear Power spectrum [1/Mpc^3]
+     * @param b_h_ Linear Halo bias
+     * @param concentration_ Concentration of NFW profiles
+     * @param scaling1_ Rescaling for type a satellites
+     * @param scaling2_ Rescaling for type b satellites
+     * @param params_ HOD parameters  
+     */
+    NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
+    double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, double* scaling1_, double* scaling2_, Params* params_);
+#endif
+
+
 
     /**
      * Destructor
@@ -312,8 +354,8 @@ namespace g3lhalo
    * @param rho_bar Array containing matter density [Msun/Mpc^3]
    * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
    * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param H0 Hubble constant [km/s/Mpc]
-   * @param OmM Omega_m
+   * @param scaling1 Array containing scaling factors for satellite variances type a(optional)
+   * @param scaling2 Array containing scaling factors for satellite variances type b(optional)
    */
   __device__ __host__ double kernel_function_1halo(double theta1, double theta2, double theta3, double l1, double l2, double phi, double m, double z,
 						   double zmin, double zmax, double mmin, double mmax, int Nbins,
@@ -324,7 +366,7 @@ namespace g3lhalo
 						   const double* g, const double* p_lens1,
 						   const double* p_lens2, const double* w, const double* dwdz,
 						   const double* hmf, const double* concentration,
-						   const double* rho_bar, const double* n_bar1, const double* n_bar2);
+						   const double* rho_bar, const double* n_bar1, const double* n_bar2, const double* scaling1=NULL, const double* scaling2=NULL);
 
 
 #if GPU
@@ -367,9 +409,9 @@ namespace g3lhalo
    * @param rho_bar Array containing matter density [Msun/Mpc^3]
    * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
    * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param H0 Hubble constant [km/s/Mpc]
-   * @param OmM Omega_m
    * @param value Array which will contain results
+   * @param scaling1 Array containing scaling for satellite variance of type a
+   * @param scaling2 Array containing scaling for satellite variance of type b
    */
  __global__ void GPUkernel_1Halo(const double* params, double theta1, double theta2, double theta3, int npts,
 				 int type1, int type2,
@@ -379,7 +421,7 @@ namespace g3lhalo
 				 double zmin, double zmax, double mmin, double mmax,
 				 int Nbins, const double* g, const double* p_lens1, const double* p_lens2, const double* w,
 				 const double* dwdz, const double* hmf, const double* concentration, const double* rho_bar,
-				 const double* n_bar1, const double* n_bar2, double* value );
+				 const double* n_bar1, const double* n_bar2, double* value, const double* scaling1=NULL, const double* scaling2=NULL);
 #endif
   
   /**
@@ -436,8 +478,8 @@ namespace g3lhalo
    * @param rho_bar Array containing matter density [Msun/Mpc^3]
    * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
    * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param H0 Hubble constant [km/s/Mpc]
-   * @param OmM Omega_m
+   * @param scaling1 Array containing scaling factors for satellite variances type a(optional)
+   * @param scaling2 Array containing scaling factors for satellite variances type b(optional)
    */
   __device__ __host__ double kernel_function_2halo(double theta1, double theta2, double theta3, double l1, double l2, double phi,
 						   double m1, double m2, double z, double zmin, double zmax, double mmin, double mmax,
@@ -447,7 +489,8 @@ namespace g3lhalo
 						   double A, double epsilon, const double* g, const double* p_lens1,
 						   const double* p_lens2, const double* w, const double* dwdz, const double* hmf,
 						   const double* P_lin, const double* b_h, const double* concentration,
-						   const double* rho_bar, const double* n_bar1, const double* n_bar2);
+						   const double* rho_bar, const double* n_bar1, const double* n_bar2, 
+               const double* scaling1=NULL, const double* scaling2=NULL);
 
 #if GPU
   /**
@@ -490,9 +533,9 @@ namespace g3lhalo
    * @param rho_bar Array containing matter density [Msun/Mpc^3]
    * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
    * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param H0 Hubble constant [km/s/Mpc]
-   * @param OmM Omega_m
    * @param value Array which will contain results
+   * @param scaling1 Array containing scaling factors for satellite variances type a(optional)
+   * @param scaling2 Array containing scaling factors for satellite variances type b(optional)
    */
  __global__ void GPUkernel_2Halo(const double* params, double theta1, double theta2, double theta3, int npts, int type1, int type2,
 				 double f1,  double f2, double alpha1, double alpha2, double mmin1, double mmin2, double sigma1,
@@ -501,7 +544,7 @@ namespace g3lhalo
 				 const double* g, const double* p_lens1, const double* p_lens2, const double* w, const double* dwdz,
 				 const double* hmf, const double* P_lin, const double* b_h, const double* concentration,
 				 const double* rho_bar, const double* n_bar1, const double* n_bar2,
-				 double* value);
+				 double* value, const double* scaling1=NULL, const double* scaling2=NULL);
 #endif
 
   /**
@@ -733,8 +776,11 @@ namespace g3lhalo
    * @param A Parameter A of halo model
    * @param epsilon Parameter epsilon of halo model
    * @param sameType True if type1==type2
+   * @param scale1 scaling weight for satellite variance (type a) (optional)
+   * @param scale2 scaling weight for satellite variance (type b) (optional)
    */
-  __host__ __device__ double NsatNsat(double m, double mmin1, double mmin2, double sigma1, double sigma2, double mprime1, double mprime2, double beta1, double beta2, double A, double epsilon, bool sameType);
+  __host__ __device__ double NsatNsat(double m, double mmin1, double mmin2, double sigma1, double sigma2, double mprime1, double mprime2, double beta1, double beta2, double A, 
+    double epsilon, bool sameType, double scale1=1, double scale2=1);
 
   /**
    * G_g Function (helper for NNM)
@@ -789,13 +835,15 @@ namespace g3lhalo
    * @param Array contain matter density
    * @param Array containing concentration
    * @param sameType True if type1==type2
+   * @param scale1 scaling weight for satellite variance (type a) (optional)
+   * @param scale2 scaling weight for satellite variance (type b) (optional)
    */
   __host__ __device__ double G_gg(double k1, double k2, double m, double z, double f1,
 				  double f2, double alpha1, double alpha2, double mmin1,
 				  double mmin2, double sigma1, double sigma2, double mprime1,
 				  double mprime2, double beta1, double beta2, double A, double epsilon,
 				  double zmin, double zmax, double mmin, double mmax,
-				  int Nbins, const double* rho_bar, const double* concentration, bool sameType );
+				  int Nbins, const double* rho_bar, const double* concentration, bool sameType, double scale1=1, double scale2=1 );
 
   struct n_z_container
   {
