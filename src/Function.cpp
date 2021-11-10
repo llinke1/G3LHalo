@@ -7,26 +7,33 @@ g3lhalo::Function::Function(std::string filename, const double& default_value)
 {
   //Reading in from file
   if(filename != "none") //Only read in if filename is not "none"
-    {
-      std::ifstream input(filename.c_str());
-      if(!input.is_open()) //checking if file can be opened
-	{
-	  std::cerr << "Function: Could not open input file:"<<filename<<" Exiting. \n";
-	  exit(1);
-	};
-      double x,y;
-      while(input>>x>>y)
-	{ 
-	  x_values_.push_back(x);
-	  y_values_.push_back(y);
-	};
-
+  {
+    std::ifstream input(filename.c_str());
+    if(!input.is_open()) //checking if file can be opened
+	  {
+	    std::cerr << "Function: Could not open input file:"<<filename<<" Exiting. \n";
+	    exit(1);
+	  };
+    double x,y;
+    while(input>>x>>y)
+	  { 
       if(input.bad())
-	{
-	  std::cerr << "Function: Invalid values in "<<filename<<" Exiting. \n";
-	  exit(1);
-	};
+	    {
+	      std::cerr << "Function: Invalid values in "<<filename<<" Exiting. \n";
+	      exit(1);
+	    };
+	    x_values_.push_back(x);
+	    y_values_.push_back(y);
+	  };
+
+    if(x_values_.size()==0 || y_values_.size()==0)
+    {
+      std::cerr<< "Function: Could not read values. Is file "<<filename<<" empty or contains nans? Exiting."<<std::endl;
+      exit(1);
     };
+
+
+  };
   //Setting default value
   default_value_=default_value;
 }
