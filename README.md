@@ -150,7 +150,7 @@ The output of the fit are
 <!-- LICENSE -->
 ## License
 
-Distributed under the 
+Distributed under the GNU General Public License v 3.0
 
 
 
