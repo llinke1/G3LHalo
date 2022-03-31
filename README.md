@@ -41,7 +41,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This code can give halo model predictions for the Galaxy-Galaxy-Galaxy lensing (G3L) aperture statistics, and fit the free halo model parameters to measurements of the G3L aperture statistics. Integrations can be performed GPU accelerated, for which an NVIDIA GPU + CUDA are necessary (although a pure CPU version is also available). The modelling code is complementary to the G3L measurement code in <a href="https://github.com/llinke1/G3LConGPU">G3LConGPU</a>. To learn more about G3L, you can check out <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...634A..13L/abstract">Linke et al.(2020a)</a>, <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..59L/abstract"> Linke et al.(2020b)</a>, and <a href="https://ui.adsabs.harvard.edu/abs/2019A%26A...622A.104S/abstract"> Simon et al.(2019)</a>. 
+This code can give halo model predictions for the Galaxy-Galaxy-Galaxy lensing (G3L) aperture statistics, and fit the free halo model parameters to measurements of the G3L aperture statistics. Integrations can be performed GPU accelerated, for which an NVIDIA GPU + CUDA are necessary (although a pure CPU version is also available). The modelling code is complementary to the G3L measurement code in <a href="https://github.com/llinke1/G3LConGPU">G3LConGPU</a>. To learn more about G3L, you can check out <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...634A..13L/abstract">Linke et al.(2020a)</a>, <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..59L/abstract"> Linke et al.(2020b)</a>, and <a href="https://ui.adsabs.harvard.edu/abs/2019A%26A...622A.104S/abstract"> Simon et al.(2019)</a>. The code is based on code by Jens Rödiger and his <a href="https://hdl.handle.net/20.500.11811/4086"> PhD Thesis </a> .
 
 
 <!-- GETTING STARTED -->
@@ -150,7 +150,7 @@ The output of the fit are
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the 
 
 
 
@@ -165,7 +165,7 @@ Project Link: [https://github.com/llinke1/G3LConGPU](https://github.com/llinke1/
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
-
+* The code is based on code by Jens Rödiger and his <a href="https://hdl.handle.net/20.500.11811/4086"> PhD Thesis </a> .
 * The integration routines use <a href="https://github.com/stevengj/cubature"> cubature </a> 
 * This ReadMe is based on <a href="https://github.com/othneildrew/Best-README-Template"> Best-README-Template </a>
 
