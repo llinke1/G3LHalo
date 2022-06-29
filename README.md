@@ -6,14 +6,14 @@
   <p align="center">
     Code for modelling the Galaxy-Galaxy-Galaxy-lensing aperture statistics with the Halomodel and for fitting the model to measured G3L signals
     <br />
-    <a href="https://github.com/llinke1/G3LConGPU"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/llinke1/G3LHalo"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/llinke1/G3LConGPU">View Demo</a>
+    <a href="https://github.com/llinke1/G3LHalo">View Demo</a>
     ·
-    <a href="https://github.com/llinke1/G3LConGPU/issues">Report Bug</a>
+    <a href="https://github.com/llinke1/G3LHalo/issues">Report Bug</a>
     ·
-    <a href="https://github.com/llinke1/G3LConGPU/issues">Request Feature</a>
+    <a href="https://github.com/llinke1/G3LHalo/issues">Request Feature</a>
   </p>
 </p>
 
@@ -41,7 +41,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This code can give halo model predictions for the Galaxy-Galaxy-Galaxy lensing (G3L) aperture statistics, and fit the free halo model parameters to measurements of the G3L aperture statistics. Integrations can be performed GPU accelerated, for which an NVIDIA GPU + CUDA are necessary (although a pure CPU version is also available). The modelling code is complementary to the G3L measurement code in <a href="https://github.com/llinke1/G3LConGPU">G3LConGPU</a>. To learn more about G3L, you can check out <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...634A..13L/abstract">Linke et al.(2020a)</a>, <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..59L/abstract"> Linke et al.(2020b)</a>, and <a href="https://ui.adsabs.harvard.edu/abs/2019A%26A...622A.104S/abstract"> Simon et al.(2019)</a>. The code is based on code by Jens Rödiger and his <a href="https://hdl.handle.net/20.500.11811/4086"> PhD Thesis </a> .
+This code can give halo model predictions for the Galaxy-Galaxy-Galaxy lensing (G3L) aperture statistics, and fit the free halo model parameters to measurements of the G3L aperture statistics. Integrations can be performed GPU accelerated, for which an NVIDIA GPU + CUDA are necessary (although a pure CPU version is also available). The scientific application of the code is described in <a href="https://ui.adsabs.harvard.edu/abs/2022arXiv220402418L/abstract"> Linke et al.(2020) </a>. Please cite this paper if you use this code for a publication. The modelling code is complementary to the G3L measurement code in <a href="https://github.com/llinke1/G3LConGPU">G3LConGPU</a>. To learn more about G3L, you can check out <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...634A..13L/abstract">Linke et al.(2020a)</a>, <a href="https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..59L/abstract"> Linke et al.(2020b)</a>, and <a href="https://ui.adsabs.harvard.edu/abs/2019A%26A...622A.104S/abstract"> Simon et al.(2019)</a>. The code is based on code by Jens Rödiger and his <a href="https://hdl.handle.net/20.500.11811/4086"> PhD Thesis </a> .
 
 
 <!-- GETTING STARTED -->
@@ -152,14 +152,14 @@ The output of the fit are
 
 Distributed under the GNU General Public License v 3.0
 
-
+Please cite <a href="https://ui.adsabs.harvard.edu/abs/2022arXiv220402418L/abstract"> Linke et al.(2020) </a> if you use the code for a publication. 
 
 <!-- CONTACT -->
 ## Contact
 
-Laila Linke - [@astro_laila](https://twitter.com/astro_laila) - llinke@astro.uni-bonn.de
+Laila Linke - [@astro_laila](https://twitter.com/astro_laila) - [llinke@astro.uni-bonn.de](mailto:llinke@astro.uni-bonn.de)
 
-Project Link: [https://github.com/llinke1/G3LConGPU](https://github.com/llinke1/G3LConGPU)
+Project Link: [https://github.com/llinke1/G3LHalo](https://github.com/llinke1/G3LHalo)
 
 
 
