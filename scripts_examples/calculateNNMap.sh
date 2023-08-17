@@ -31,7 +31,9 @@ COSMO="cosmo.param"
 
 # Parameter file containing Halomodel Parameters
 # Format: see hod.param
-FILE_PARAMS="hod.param"
+FILE_PARAMS1="hod1.param"
+FILE_PARAMS2="hod2.param"
+
 
 # ASCII file containing scale radii [arcmin]
 # Format: see thetas.dat
@@ -74,6 +76,6 @@ fi
 
 ################ Calculate Aperture Statistics #################################
 echo "Started with calculating NNMap | $(date +%T)"
-$DIR_BIN/calculateNNMap_twoPop.x $COSMO $Z_MIN $Z_MAX $K_MIN $K_MAX $M_MIN $M_MAX $NBINS $FILE_G $FILE_NZ_LENS1 $FILE_NZ_LENS2 $FILE_W $FILE_DWDZ $FILE_HMF $FILE_P $FILE_BH $FILE_CONC $FILE_PARAMS $FILE_THETAS > $DIR_RESULTS/NNMap.dat
+$DIR_BIN/calculateNNMap_twoPop.x $COSMO $Z_MIN $Z_MAX $K_MIN $K_MAX $M_MIN $M_MAX $NBINS $FILE_G $FILE_NZ_LENS1 $FILE_NZ_LENS2 $FILE_W $FILE_DWDZ $FILE_HMF $FILE_P $FILE_BH $FILE_CONC $FILE_PARAMS1 $FILE_PARAMS2 0 0 $FILE_THETAS > $DIR_RESULTS/NNMap.dat
 
 echo "Done | $(date +%T)"

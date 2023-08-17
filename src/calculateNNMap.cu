@@ -5,12 +5,13 @@
 #include "constants.h"
 #include "helpers.h"
 #include "Cosmology.h"
+#include "HOD.h"
 
 #include <fstream>
 
 int main(int argc, char* argv[])
 {
-  int n_params=19;
+  int n_params=22;
   std::string usage="./calculateNNMap.x \n Cosmology File \n minimal redshift \n maximal redshift \n minimal halo mass [Msun] \n maximal halo mass [Msun] \n minimal k [1/Mpc] \n maximal k [1/Mpc] Number of bins \n File for lensing efficiency \n File for lens redshift distribution \n File for lens redshift distribution \n File for comoving distance \n File for derivative of comoving distance \n File for Halo Mass function \n File for Linear power spectrum \n File for Halo bias \n File for concentration \n File for Halomodel Params \n File with thetas";
   std::string example="./calculateNNMap_twoPop.x cosmo.param 0.1 2 1e10 1e17 0.01 1000 256 g.dat w.dat dwdz.dat hmf.dat Plin.dat b_h.dat conc.dat hod.param thetas.dat";
 
@@ -34,9 +35,13 @@ int main(int argc, char* argv[])
   std::string fn_P_lin=argv[15];
   std::string fn_b_h=argv[16];
   std::string fn_concentration=argv[17];
-  std::string fn_params=argv[18];
+  std::string fn_params1=argv[18];
+  std::string fn_params2=argv[19];
+  double A = std::stod(argv[20]);
+  double epsilon = std::stod(argv[21]);
 
-  std::string fn_thetas=argv[19];
+
+  std::string fn_thetas=argv[22];
 
 #if VERBOSE
   std::cerr<<"Finished reading cli"<<std::endl;
@@ -61,7 +66,11 @@ int main(int argc, char* argv[])
   std::cerr<<"Finished assigning fucntions2D"<<std::endl;
 #endif
   
-  g3lhalo::Params params(fn_params);
+  g3lhalo::Params params1(fn_params1);
+  g3lhalo::Params params2(fn_params2);
+
+  g3lhalo::HOD hod1(&params1);
+  g3lhalo::HOD hod2(&params2);
 
   std::vector<double> g_val, plens1_val, plens2_val, w_val, dwdz_val, hmf_val, P_lin_val, b_h_val, concentration_val;
 
@@ -86,7 +95,10 @@ int main(int argc, char* argv[])
   // Set up cosmology
   g3lhalo::Cosmology cosmo(fn_cosmo);
   
-  g3lhalo::NNMap_Model nnmap(&cosmo, zmin, zmax, kmin, kmax, mmin, mmax, Nbins, g_val.data(), plens1_val.data(), plens2_val.data(), w_val.data(), dwdz_val.data(), hmf_val.data(), P_lin_val.data(), b_h_val.data(), concentration_val.data(), &params);
+  g3lhalo::NNMap_Model nnmap(&cosmo, zmin, zmax, kmin, kmax, mmin, mmax, Nbins, 
+  g_val.data(), plens1_val.data(), plens2_val.data(), w_val.data(), dwdz_val.data(), 
+  hmf_val.data(), P_lin_val.data(), b_h_val.data(), concentration_val.data(), 
+  &hod1, &hod2, A, epsilon);
 
 #if VERBOSE
   std::cerr<<"Finished initializing NNMap"<<std::endl;
