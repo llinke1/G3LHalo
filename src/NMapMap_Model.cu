@@ -288,7 +288,7 @@ __device__ __host__ double g3lhalo::NMM::kernel_function_1halo(double theta1, do
 #if __CUDA_ARCH__
     f = dev_params[0];
 #else
-    f = hod->params->f1;
+    f = hod->params->f;
 #endif
 
     // 3D Galaxy-Matter-Matter Bispectrum
@@ -453,7 +453,7 @@ __device__ __host__ double g3lhalo::NMM::kernel_function_2halo(double theta1, do
 #if __CUDA_ARCH__
     f = dev_params[0];
 #else
-    f = hod->params->f1;
+    f = hod->params->f;
 #endif
 
     // 3D Bispectrum
@@ -619,7 +619,7 @@ __device__ __host__ double g3lhalo::NMM::kernel_function_3halo(double theta1, do
 #if __CUDA_ARCH__
     f = dev_params[0];
 #else
-    f = hod->params->f1;
+    f = hod->params->f;
 #endif
 
     // 3D Bispectrum

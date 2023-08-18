@@ -212,24 +212,6 @@ int g3lhalo::integrand_nbar(unsigned ndim, size_t npts, const double *m, void *t
 
 #if GPU
 
-// __global__ void g3lhalo::GPUkernel_nbar(const double *ms, double z, int npts, double alpha,
-//                                         double mth, double sigma, double mprime, double beta,
-//                                         double zmin, double zmax,
-//                                         double mmin, double mmax, int Nbins, const double *hmf,
-//                                         double *value)
-// {
-//   /// Index of thread
-//   int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
-
-//   // Grid-Stride Loop, so I get npts evaluations
-//   for (int i = thread_index; i < npts; i += blockDim.x * gridDim.x)
-//   {
-//     double m = pow(10, ms[i]);
-
-//     value[i] = kernel_function_nbar(m, z, alpha, mth, sigma, mprime, beta, zmin, zmax, mmin, mmax, Nbins, hmf);
-//   };
-// }
-
 __global__ void g3lhalo::GPUkernel_nbar(const double *ms, double z, int npts, HOD *hod, double * dev_params,
                                         double zmin, double zmax,
                                         double mmin, double mmax, int Nbins, const double *hmf,

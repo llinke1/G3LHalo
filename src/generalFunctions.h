@@ -69,7 +69,7 @@ namespace g3lhalo
    * @param zmin Minimal Redshift of binning
    * @param zmax Maximal Redshift of binning
    * @param Nbins Number of bins
-   * @param Array containing linear Powerspectrum
+   * @param P_lin array containing linear Powerspectrum
    */
   __host__ __device__ double Bi_lin(double k1, double k2, double cosphi, double z,
                                     double kmin, double kmax, double zmin, double zmax,
@@ -77,19 +77,58 @@ namespace g3lhalo
 
 #if GPU
 
-  __global__ void GPUkernel_nbar(const double *ms, double z, int npts, g3lhalo::HOD *hod, double * dev_params,
-                                          double zmin, double zmax,
-                                          double mmin, double mmax, int Nbins, const double *hmf,
-                                          double *value);
+  /**
+   * GPU Kernel function for calculation of galaxy number density
+   * @param ms halo masses over which to integrate [Msun]
+   * @param z redshift at which to evaluate number density
+   * @param npts Number of integration points
+   * @param hod HOD object containing parameters
+   * @param dev_params Pointer to HOD parameters on device, should be the same as in hod object
+   * @param zmin Minimal redshift of binning
+   * @param zmax Maximal redshift of binning
+   * @param mmin Minimal halomass of binning [Msun]
+   * @param mmax Maximal halomass of binning [Msun]
+   * @param Nbins Number of bins
+   * @param hmf tabularized halo mass function
+   * @param value Output parameter, will contain galaxy number density
+   * */
+  __global__ void GPUkernel_nbar(const double *ms, double z, int npts, g3lhalo::HOD *hod, double *dev_params,
+                                 double zmin, double zmax,
+                                 double mmin, double mmax, int Nbins, const double *hmf,
+                                 double *value);
 #endif
 
-  __device__ __host__ double kernel_function_nbar(double m, double z, g3lhalo::HOD *hod, double * dev_params,
-                                                           double zmin, double zmax,
-                                                           double mmin, double mmax, int Nbins, const double *hmf);
+  /**
+   * Kernel function for calculation of galaxy number density
+   * @param m halo mass [Msun]
+   * @param z redshift
+   * @param hod HOD object containing parameters
+   * @param dev_params Pointer to HOD parameters on device, should be the same as in hod object
+   * @param zmin Minimal redshift of binning
+   * @param zmax Maximal redshift of binning
+   * @param mmin Minimal halomass of binning [Msun]
+   * @param mmax Maximal halomass of binning [Msun]
+   * @param Nbins Number of bins
+   * @param hmf tabularized halo mass function
+   */
+  __device__ __host__ double kernel_function_nbar(double m, double z, g3lhalo::HOD *hod, double *dev_params,
+                                                  double zmin, double zmax,
+                                                  double mmin, double mmax, int Nbins, const double *hmf);
 
+/**
+ * Integrand for galaxy number density for the use with cubature
+ * @param ndim Dimensionality of integral (must be 1 here)
+ * @param npts Number of integration points
+ * @param m Array containing halo masses of integration points
+ * @param thisPtr Pointer to integration container (of form n_z_container)
+ * @param fdim Dimension of function (must be 1 here)
+ * @param value Will contain integrand values
+*/
   int integrand_nbar(unsigned ndim, size_t npts, const double *m, void *thisPtr, unsigned fdim, double *value);
 
-
+/**
+ * Structure for galaxy number density integration
+*/
   struct n_z_container
   {
     HOD *hod;

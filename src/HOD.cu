@@ -12,12 +12,12 @@ g3lhalo::HOD::HOD(Params *params_)
     params = params_;
 
 #if GPU
-    param_arr[0] = params->f1;
-    param_arr[1] = params->alpha1;
-    param_arr[2] = params->mmin1;
-    param_arr[3] = params->sigma1;
-    param_arr[4] = params->mprime1;
-    param_arr[5] = params->beta1;
+    param_arr[0] = params->f;
+    param_arr[1] = params->alpha;
+    param_arr[2] = params->mmin;
+    param_arr[3] = params->sigma;
+    param_arr[4] = params->mprime;
+    param_arr[5] = params->beta;
 
     CUDA_SAFE_CALL(cudaMalloc(&dev_params, 6 * sizeof(double)));
     CUDA_SAFE_CALL(cudaMemcpy(dev_params, param_arr, 6 * sizeof(double), cudaMemcpyHostToDevice));
@@ -47,10 +47,10 @@ __host__ __device__ double g3lhalo::HOD::Nsat(double m, double *d_params)
     double mprime = d_params[4];
     double beta = d_params[5];
 #else
-    double mth = params->mmin1;
-    double sigma = params->sigma1;
-    double mprime = params->mprime1;
-    double beta = params->beta1;
+    double mth = params->mmin;
+    double sigma = params->sigma;
+    double mprime = params->mprime;
+    double beta = params->beta;
 #endif
     return 0.5 * (1 + erf(log(m / mth) / sigma / 1.414213562)) * pow(m / mprime, beta);
 }
@@ -68,9 +68,9 @@ __host__ __device__ double g3lhalo::HOD::Ncen(double m, double *d_params)
     double mth = d_params[2];
     double sigma = d_params[3]; 
 #else
-    double alpha = params->alpha1;
-    double mth = params->mmin1;
-    double sigma = params->sigma1;
+    double alpha = params->alpha;
+    double mth = params->mmin;
+    double sigma = params->sigma;
 #endif
     return 0.5 * alpha * (1 + erf(log(m / mth) / sigma / 1.414213562));
 }

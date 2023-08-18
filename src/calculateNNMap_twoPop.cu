@@ -17,8 +17,30 @@ int main(int argc, char *argv[])
   int n_params = 22;
 #endif
 
-  std::string usage = "./calculateNNMap_twoPop.x \n Cosmology File \n minimal redshift \n maximal redshift \n minimal halo mass [Msun] \n maximal halo mass [Msun] \n minimal k [1/Mpc] \n maximal k [1/Mpc] Number of bins \n File for lensing efficiency \n File for lens redshift distribution \n File for lens redshift distribution \n File for comoving distance \n File for derivative of comoving distance \n File for Halo Mass function \n File for Linear power spectrum \n File for Halo bias \n File for concentration \n File for Halomodel Params \n File with thetas";
-  std::string example = "./calculateNNMap_twoPop.x cosmo.param 0.1 2 1e10 1e17 0.01 1000 256 g.dat w.dat dwdz.dat hmf.dat Plin.dat b_h.dat conc.dat hod.param thetas.dat";
+  std::string usage =
+      "./calculateNNMap_twoPop.x \n \
+  Cosmology File \n \
+  minimal redshift \n \
+  maximal redshift \n \
+  minimal halo mass [Msun] \n \
+   maximal halo mass [Msun] \n \
+   minimal k [1/Mpc] \n \
+    maximal k [1/Mpc] \n \
+     Number of bins \n \
+     File for lensing efficiency \n \
+      File for lens redshift distribution \n \
+       File for lens redshift distribution \n \
+       File for comoving distance \n \
+        File for derivative of comoving distance \n \
+        File for Halo Mass function \n File for Linear power spectrum \n \
+         File for Halo bias \n \
+         File for concentration \n \
+         File for Halomodel Params \n \
+         File for Halomodel Params \n \
+         Parameter A for HOD correlation \n \
+         Parameter epsilon for HOD correlation \n \
+         File with thetas";
+  std::string example = "./calculateNNMap_twoPop.x cosmo.param 0.1 2 1e10 1e17 0.01 1000 256 g.dat w.dat dwdz.dat hmf.dat Plin.dat b_h.dat conc.dat hod1.param hod2.param 0 0 thetas.dat";
 
   g3lhalo::checkCmdLine(argc, n_params, usage, example);
 
@@ -86,7 +108,6 @@ int main(int argc, char *argv[])
   g3lhalo::HOD hod1(&params1);
   g3lhalo::HOD hod2(&params2);
 
-  
   std::vector<double> g_val, plens1_val, plens2_val, w_val, dwdz_val, hmf_val, P_lin_val, b_h_val, concentration_val;
 
   if (g.read(Nbins, zmin, zmax, g_val) || plens1.read(Nbins, zmin, zmax, plens1_val) || plens2.read(Nbins, zmin, zmax, plens2_val) || w.read(Nbins, zmin, zmax, w_val) || dwdz.read(Nbins, zmin, zmax, dwdz_val) || hmf.read(Nbins, zmin, zmax, mmin, mmax, hmf_val) || P_lin.read(Nbins, zmin, zmax, kmin, kmax, P_lin_val) || b_h.read(Nbins, zmin, zmax, mmin, mmax, b_h_val) || concentration.read(Nbins, zmin, zmax, mmin, mmax, concentration_val))

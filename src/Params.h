@@ -15,27 +15,23 @@ namespace g3lhalo
   class Params
   {
   public:
-    // /// Number of parameters
-    // int N=14;
+    double f; //f parameter
+    double alpha; // alpha Parameter
+    double mmin; // MMin [Msun]
+    double sigma; // Sigma Parameter
+    double mprime; //Mprime [Msun]
+    double beta; //beta
 
-    double f1; //f parameter
-    double alpha1; // alpha Parameter
-    double mmin1; // MMin [Msun]
-    double sigma1; // Sigma Parameter
-    double mprime1; //Mprime [Msun]
-    double beta1; //beta
-    // double A; // A parameter [1/Msun]
-    // double epsilon; // epsilon parameter
    
     Params(){}; //Empty constructor
 
     /**
      * Constructor from values
      */
-    Params(double f1_, double alpha1_, 
-	   double mmin1_, double sigma1_, 
-	   double mprime1_, double beta1_)
-      : f1{f1_}, alpha1{alpha1_},  mmin1{mmin1_}, sigma1{sigma1_}, mprime1{mprime1_},  beta1{beta1_}{
+    Params(double f_, double alpha_, 
+	   double mmin_, double sigma_, 
+	   double mprime_, double beta_)
+      : f{f_}, alpha{alpha_},  mmin{mmin_}, sigma{sigma_}, mprime{mprime_},  beta{beta_}{
       };
 
 

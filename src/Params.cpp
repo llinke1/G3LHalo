@@ -38,29 +38,29 @@ g3lhalo::Params::Params(std::string filename)
   // Assigning to Params
   for(unsigned int i=0; i<parameterNames.size(); i++)
     {
-      if(parameterNames.at(i)=="M_min1")
+      if(parameterNames.at(i)=="M_min")
 	{
-	  mmin1=parameterValues.at(i);
+	  mmin=parameterValues.at(i);
 	}
-      else if(parameterNames.at(i)=="sigma_1")
+      else if(parameterNames.at(i)=="sigma")
 	{
-	  sigma1=parameterValues.at(i);
+	  sigma=parameterValues.at(i);
 	}
-      else if(parameterNames.at(i)=="M'_1")
+      else if(parameterNames.at(i)=="M'")
 	{
-	  mprime1=parameterValues.at(i);
+	  mprime=parameterValues.at(i);
 	}
-      else if(parameterNames.at(i)=="beta_1")
+      else if(parameterNames.at(i)=="beta")
 	{
-	  beta1=parameterValues.at(i);
+	  beta=parameterValues.at(i);
 	}
-      else if(parameterNames.at(i)=="alpha_1")
+      else if(parameterNames.at(i)=="alpha")
 	{
-	  alpha1=parameterValues.at(i);
+	  alpha=parameterValues.at(i);
 	}
-      else if(parameterNames.at(i)=="f_1")
+      else if(parameterNames.at(i)=="f")
 	{
-	  f1=parameterValues.at(i);
+	  f=parameterValues.at(i);
 	}    
       else
 	{
@@ -76,11 +76,11 @@ g3lhalo::Params::Params(std::string filename)
 
 std::ostream& operator<< (std::ostream& out, g3lhalo::Params const& params)
 {
-  out<<"M_min1 "<<params.mmin1<<std::endl;
-  out<<"sigma_1 "<<params.sigma1<<std::endl;
-  out<<"M'_1 "<<params.mprime1<<std::endl;
-  out<<"beta_1 "<<params.beta1<<std::endl;
-  out<<"alpha_1 "<<params.alpha1<<std::endl;
-  out<<"f_1 "<<params.f1<<std::endl;
+  out<<"M_min "<<params.mmin<<std::endl;
+  out<<"sigma "<<params.sigma<<std::endl;
+  out<<"M' "<<params.mprime<<std::endl;
+  out<<"beta "<<params.beta<<std::endl;
+  out<<"alpha "<<params.alpha<<std::endl;
+  out<<"f "<<params.f<<std::endl;
   return(out);
 }

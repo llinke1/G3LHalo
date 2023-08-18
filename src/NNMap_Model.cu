@@ -1025,7 +1025,8 @@ __device__ __host__ double g3lhalo::NNM::kernel_function_3halo(double theta1, do
   double k3 = l3 / w_;
 
   // 3D Bispectrum
-  double Bggd = 1. / nbar1 / nbar2 / rho_bar[z_ix] * hmf[z_ix * Nbins + m1_ix] * hmf[z_ix * Nbins + m2_ix] * hmf[z_ix * Nbins + m3_ix] * m3 * u_NFW(k3, m3, z, 1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) * G_g(k1, m1, z, hod1, dev_params1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) * G_g(k2, m2, z, hod2, dev_params2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) * Bi_lin(k1, k2, cos(phi), z, kmin, kmax, zmin, zmax, Nbins, P_lin) * b_h[z_ix * Nbins + m1_ix] * b_h[z_ix * Nbins + m2_ix] * b_h[z_ix * Nbins + m3_ix];
+  double Bggd = 1. / nbar1 / nbar2 / rho_bar[z_ix] * hmf[z_ix * Nbins + m1_ix] * hmf[z_ix * Nbins + m2_ix] * hmf[z_ix * Nbins + m3_ix] * m3 * u_NFW(k3, m3, z, 1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) * G_g(k1, m1, z, hod1, dev_params1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) * G_g(k2, m2, z, hod2, dev_params2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) * Bi_lin(k1, k2, cos(phi), z, kmin, kmax, zmin, zmax, Nbins, P_lin) 
+  * b_h[z_ix * Nbins + m1_ix] * b_h[z_ix * Nbins + m2_ix] * b_h[z_ix * Nbins + m3_ix];
 
   // 2D bispcetrum
   double bggk = Bggd / dwdz[z_ix] * g[z_ix] * p_lens1[z_ix] * p_lens2[z_ix] / w_ / w_ / w_ * (1. + z);
@@ -1075,7 +1076,7 @@ __host__ __device__ double g3lhalo::NNM::G_g(double k, double m, double z, g3lha
 #if __CUDA_ARCH__
   f = dev_params[0];
 #else
-  f = hod->params->f1;
+  f = hod->params->f;
 #endif
   return Nc + Ns * u_NFW(k, m, z, f, zmin, zmax, mmin, mmax, Nbins, rho_bar,
                          concentration);
@@ -1097,8 +1098,8 @@ __host__ __device__ double g3lhalo::NNM::G_gg(double k1, double k2, double m, do
   f1 = dev_params1[0];
   f2 = dev_params2[0];
 #else
-  f1 = hod1->params->f1;
-  f2 = hod2->params->f1;
+  f1 = hod1->params->f;
+  f2 = hod2->params->f;
 #endif
 
   return Nc1 * Ns2 * u_NFW(k2, m, z, f2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) + Nc2 * Ns1 * u_NFW(k1, m, z, f1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) + Nss * u_NFW(k1, m, z, f1, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration) * u_NFW(k2, m, z, f2, zmin, zmax, mmin, mmax, Nbins, rho_bar, concentration);

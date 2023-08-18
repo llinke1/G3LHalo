@@ -2,9 +2,8 @@
 
 ###############################################################################
 # Skript calculating G3L aperture statistics from Halomodel
-# Calculates auto-correlation for both populations (N1N1M and N2N2M) and cross-correlation (N1N2M)
-#
-# Author: Laila Linke, llinke@astro.uni-bonn.de
+# Calculates <NM²>
+# Author: Laila Linke, laila.linke@uibk.ac.at
 ###############################################################################
 
 # Folder for Results, is created if it doesn't exist
@@ -28,7 +27,7 @@ FILE_NZ_LENS="pz_lenses.dat"
 COSMO="cosmo.param"
 
 # Parameter file containing Halomodel Parameters
-# Format: see hod.param
+# Format: see hod1.param
 FILE_PARAMS="hod2.param"
 
 
