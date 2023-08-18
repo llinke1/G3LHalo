@@ -1,5 +1,5 @@
 # define the Compiler to use
-GCC = g++-10 -std=c++20
+GCC = g++ -std=c++20
 
 NVCC = nvcc -arch=sm_75 -rdc=true -Xcompiler -fopenmp -O3
 
@@ -14,7 +14,7 @@ USERFLAGS += -DGPU=true
 endif
 
 # define if Scaling of Satellite variance is used
-SCALING = true
+SCALING = false
 ifeq ($(SCALING), true)
 USERFLAGS += -DSCALING=true
 endif
@@ -48,7 +48,7 @@ SRCS_CU = $(wildcard *.cu)
 EXECS = doPrecomputations.x
 
 # define the CUDA executables
-EXECS_CU = calculateNNMap_twoPop.x testGPU.x fit_twoPop.x calculateDerivativeNNMap_twoPop.x calculateChiSquared.x calculateNNMap.x
+EXECS_CU = calculateNNMap_twoPop.x testGPU.x calculateNNMap.x calculateNMapMap.x
 
 # define the object files
 OBJS = $(SRCS:.cpp=.o)

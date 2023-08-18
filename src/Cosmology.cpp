@@ -69,7 +69,6 @@ g3lhalo::Cosmology::Cosmology(const std::string& fn_parameters)
     };
 
   rho_crit=3*H0*H0*Mpc_in_km/8/g3lhalo::pi/G;
-
 }
 
 double g3lhalo::Cosmology::delta_c(const double& z)

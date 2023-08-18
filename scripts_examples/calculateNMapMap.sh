@@ -2,9 +2,8 @@
 
 ###############################################################################
 # Skript calculating G3L aperture statistics from Halomodel
-# Calculates auto-correlation for both populations (N1N1M and N2N2M) and cross-correlation (N1N2M)
-#
-# Author: Laila Linke, llinke@astro.uni-bonn.de
+# Calculates <NM²>
+# Author: Laila Linke, laila.linke@uibk.ac.at
 ###############################################################################
 
 # Folder for Results, is created if it doesn't exist
@@ -19,20 +18,17 @@ FILE_NZ="pz_sources.dat"
 
 # ASCII file containing lens n_z for population 1
 # Format: z n(z)
-FILE_NZ_LENS1="pz_lenses.dat"
+FILE_NZ_LENS="pz_lenses.dat"
 
-# ASCII file containing lens n_z for population 2
-# Format: z n(z)
-FILE_NZ_LENS2="pz_lenses.dat"
+
 
 # Parameter file containing Cosmology
 # Format: see cosmo.param
 COSMO="cosmo.param"
 
 # Parameter file containing Halomodel Parameters
-# Format: see hod.param
-FILE_PARAMS1="hod1.param"
-FILE_PARAMS2="hod2.param"
+# Format: see hod1.param
+FILE_PARAMS="hod2.param"
 
 
 # ASCII file containing scale radii [arcmin]
@@ -76,6 +72,6 @@ fi
 
 ################ Calculate Aperture Statistics #################################
 echo "Started with calculating NNMap | $(date +%T)"
-$DIR_BIN/calculateNNMap_twoPop.x $COSMO $Z_MIN $Z_MAX $K_MIN $K_MAX $M_MIN $M_MAX $NBINS $FILE_G $FILE_NZ_LENS1 $FILE_NZ_LENS2 $FILE_W $FILE_DWDZ $FILE_HMF $FILE_P $FILE_BH $FILE_CONC $FILE_PARAMS1 $FILE_PARAMS2 0 0 $FILE_THETAS > $DIR_RESULTS/NNMap.dat
+$DIR_BIN/calculateNMapMap.x $COSMO $Z_MIN $Z_MAX $K_MIN $K_MAX $M_MIN $M_MAX $NBINS $FILE_G $FILE_NZ_LENS $FILE_W $FILE_DWDZ $FILE_HMF $FILE_P $FILE_BH $FILE_CONC $FILE_PARAMS $FILE_THETAS > $DIR_RESULTS/NMapMap.dat
 
 echo "Done | $(date +%T)"
