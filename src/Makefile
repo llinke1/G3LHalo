@@ -48,7 +48,7 @@ SRCS_CU = $(wildcard *.cu)
 EXECS = doPrecomputations.x
 
 # define the CUDA executables
-EXECS_CU = calculateNNMap_twoPop.x testGPU.x calculateNNMap.x
+EXECS_CU = calculateNNMap_twoPop.x testGPU.x calculateNNMap.x calculateNMapMap.x
 
 # define the object files
 OBJS = $(SRCS:.cpp=.o)

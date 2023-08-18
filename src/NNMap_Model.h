@@ -121,8 +121,6 @@ namespace g3lhalo
      * @param concentration_ Concentration of NFW profiles
      * @param params_ HOD parameters
      */
-    // NNMap_Model(Cosmology *cosmology_, const double &zmin_, const double &zmax_, const double &kmin_, const double &kmax_, const double &mmin_, const double &mmax_, const int &Nbins_,
-    //             double *g_, double *p_lens1_, double *p_lens2_, double *w_, double *dwdz_, double *hmf_, double *P_lin_, double *b_h_, double *concentration_, Params *params_);
     NNMap_Model(Cosmology *cosmology_, const double &zmin_, const double &zmax_, const double &kmin_, const double &kmax_,
                 const double &mmin_, const double &mmax_, const int &Nbins_,
                 double *g_, double *p_lens1_, double *p_lens2_, double *w_,
@@ -243,343 +241,333 @@ namespace g3lhalo
     void calculateAll(const std::vector<double> &thetas1, const std::vector<double> &thetas2, const std::vector<double> &thetas3,
                       HOD *hod1, HOD *hod2, double A, double epsilon, std::vector<double> &results);
 
-    // /**
-    //  * Reads "type" and writes the associated HOD parameters into the function arguments
-    //  * @param type Galaxy type, either 1 or 2
-    //  * @param f will contain f1 or f2
-    //  * @param alpha will contain alpha1 or alpha2
-    //  * @param mth will contain mmin1 or mmin2
-    //  * @param sigma will contain sigma1 or sigma2
-    //  * @param mprime will contain mprime1 or mprime2
-    //  * @param beta will contain beta1 or beta2
-    //  */
-    // void pickParams(const int &type, double &f, double &alpha, double &mth, double &sigma, double &mprime, double &beta);
+
   };
 
-namespace NNM
-{
-  __device__ __host__ double kernel_function_1halo(double theta1, double theta2, double theta3, double l1, double l2, double phi, double m, double z,
-                                                   double zmin, double zmax, double mmin, double mmax, int Nbins,
-                                                   HOD *hod1, HOD *hod2,double *dev_params1, double *dev_params2, double A, double epsilon,
-                                                   const double *g, const double *p_lens1,
-                                                   const double *p_lens2, const double *w, const double *dwdz,
-                                                   const double *hmf, const double *concentration,
-                                                   const double *rho_bar, const double *n_bar1, const double *n_bar2,  const double *scaling1 = NULL, const double *scaling2 = NULL);
+  namespace NNM
+  {
+    __device__ __host__ double kernel_function_1halo(double theta1, double theta2, double theta3, double l1, double l2, double phi, double m, double z,
+                                                     double zmin, double zmax, double mmin, double mmax, int Nbins,
+                                                     HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2, double A, double epsilon,
+                                                     const double *g, const double *p_lens1,
+                                                     const double *p_lens2, const double *w, const double *dwdz,
+                                                     const double *hmf, const double *concentration,
+                                                     const double *rho_bar, const double *n_bar1, const double *n_bar2, const double *scaling1 = NULL, const double *scaling2 = NULL);
 
-  __global__ void GPUkernel_1Halo(const double *params, double theta1, double theta2, double theta3, int npts,
-                                  HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2, double A, double epsilon,
-                                  double zmin, double zmax, double mmin, double mmax,
-                                  int Nbins, const double *g, const double *p_lens1, const double *p_lens2, const double *w,
-                                  const double *dwdz, const double *hmf, const double *concentration, const double *rho_bar, const double *n_bar1, const double *n_bar2,
-                                  double *value, const double *scaling1 = NULL, const double *scaling2 = NULL);
+    __global__ void GPUkernel_1Halo(const double *params, double theta1, double theta2, double theta3, int npts,
+                                    HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2, double A, double epsilon,
+                                    double zmin, double zmax, double mmin, double mmax,
+                                    int Nbins, const double *g, const double *p_lens1, const double *p_lens2, const double *w,
+                                    const double *dwdz, const double *hmf, const double *concentration, const double *rho_bar, const double *n_bar1, const double *n_bar2,
+                                    double *value, const double *scaling1 = NULL, const double *scaling2 = NULL);
 
-  /**
-   * Integrand for 1Halo term of NNM for use with cubature
-   * @param ndim Dimension of integral (5 in this case)
-   * @param npts Number of integration points
-   * @param params Array of integration x-values
-   * @param thisPtr Pointer to integration container
-   * @param fdim Dimension of integrand function (1 in this case)
-   * @param value Array, which will contain the integration values
-   */
-  int integrand_1halo(unsigned ndim, size_t npts, const double *params, void *thisPtr, unsigned fdim, double *value);
+    /**
+     * Integrand for 1Halo term of NNM for use with cubature
+     * @param ndim Dimension of integral (5 in this case)
+     * @param npts Number of integration points
+     * @param params Array of integration x-values
+     * @param thisPtr Pointer to integration container
+     * @param fdim Dimension of integrand function (1 in this case)
+     * @param value Array, which will contain the integration values
+     */
+    int integrand_1halo(unsigned ndim, size_t npts, const double *params, void *thisPtr, unsigned fdim, double *value);
 
-  /**
-   * Integrand for 2Halo term of NNM for use with cubature
-   * @param ndim Dimension of integral (6 in this case)
-   * @param npts Number of integration points
-   * @param params Array of integration x-values
-   * @param thisPtr Pointer to integration container
-   * @param fdim Dimension of integrand function (1 in this case)
-   * @param value Array, which will contain the integration values
-   */
-  int integrand_2halo(unsigned ndim, size_t npts, const double *params, void *thisPtr, unsigned fdim, double *value);
+    /**
+     * Integrand for 2Halo term of NNM for use with cubature
+     * @param ndim Dimension of integral (6 in this case)
+     * @param npts Number of integration points
+     * @param params Array of integration x-values
+     * @param thisPtr Pointer to integration container
+     * @param fdim Dimension of integrand function (1 in this case)
+     * @param value Array, which will contain the integration values
+     */
+    int integrand_2halo(unsigned ndim, size_t npts, const double *params, void *thisPtr, unsigned fdim, double *value);
 
-  /**
-   * Kernel function for 2Halo term of NNM
-   * @param theta1 Aperture Radius [rad]
-   * @param theta2 Aperture Radius [rad]
-   * @param theta3 Aperture Radius [rad]
-   * @param l1 l parameter [1/rad]
-   * @param l2 l parameter [1/rad]
-   * @param phi phi parameter [rad]
-   * @param m1 Halo mass1 [Msun]
-   * @param m2 Halo mass2 [Msun]
-   * @param z Redshift
-   * @param zmin Minimal Redshift of binning
-   * @param zmax Maximal Redshift of binning
-   * @param mmin Minimal Halomass for binning [Msun]
-   * @param mmax Maximal Halomass for binning [Msun]
-   * @param Nbins Number of bins
-   * @param type1 Galaxy type (1 or 2)
-   * @param type2 Galaxy type (1 or 2)
-   * @param f1 Parameter f of HOD 1
-   * @param f2 Parameter f of HOD2
-   * @param alpha1 Parameter alpha of HOD1
-   * @param alpha2 Parameter alpha of HOD2
-   * @param mmin1 Parameter mmin of HOD1 [Msun]
-   * @param mmin2 Parameter mmin of HOD2 [Msun]
-   * @param sigma1 Parameter sigma of HOD1
-   * @param sigma2 Parameter sigma of HOD2
-   * @param mprime1 Parameter mprime of HOD1 [Msun]
-   * @param mprime2 Parameter mprime of HOD2 [Msun]
-   * @param beta1 Parameter beta of HOD
-   * @param beta2 Parameter beta of HOD
-   * @param A Parameter A of halo model
-   * @param epsilon Parameter epsilon of halo model
-   * @param g Array containing precomputed lensing efficiency
-   * @param p_lens1 Array containing lens redshift distribution
-   * @param p_lens2 Array containing lens redshift distribution
-   * @param w Array containing comoving distance [Mpc]
-   * @param dwdz Array containing derivative of comoving distance [Mpc]
-   * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
-   * @param concentration Array containing concentration of NFW profiles
-   * @param rho_bar Array containing matter density [Msun/Mpc^3]
-   * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
-   * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param scaling1 Array containing scaling factors for satellite variances type a(optional)
-   * @param scaling2 Array containing scaling factors for satellite variances type b(optional)
-   */
-  __device__ __host__ double kernel_function_2halo(double theta1, double theta2, double theta3, double l1, double l2, double phi,
-                                                   double m1, double m2, double z, double zmin, double zmax, double mmin, double mmax,
-                                                   double kmin, double kmax, int Nbins, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2,
-                                                   double A, double epsilon, const double *g, const double *p_lens1,
-                                                   const double *p_lens2, const double *w, const double *dwdz, const double *hmf,
-                                                   const double *P_lin, const double *b_h, const double *concentration,
-                                                   const double *rho_bar, const double *n_bar1, const double *n_bar2,
-                                                   const double *scaling1 = NULL, const double *scaling2 = NULL);
-
-#if GPU
-  /**
-   * GPU Kernel for 2Halo term of NNM
-   * @param params Integration variables
-   * @param theta1 Aperture Radius [rad]
-   * @param theta2 Aperture Radius [rad]
-   * @param theta3 Aperture Radius [rad]
-   * @param npts Number of integration points
-   * @param type1 Galaxy type (1 or 2)
-   * @param type2 Galaxy type (1 or 2)
-   * @param f1 Parameter f of HOD 1
-   * @param f2 Parameter f of HOD2
-   * @param alpha1 Parameter alpha of HOD1
-   * @param alpha2 Parameter alpha of HOD2
-   * @param mmin1 Parameter mmin of HOD1 [Msun]
-   * @param mmin2 Parameter mmin of HOD2 [Msun]
-   * @param sigma1 Parameter sigma of HOD1
-   * @param sigma2 Parameter sigma of HOD2
-   * @param mprime1 Parameter mprime of HOD1 [Msun]
-   * @param mprime2 Parameter mprime of HOD2 [Msun]
-   * @param beta1 Parameter beta of HOD
-   * @param beta2 Parameter beta of HOD
-   * @param A Parameter A of halo model
-   * @param epsilon Parameter epsilon of halo model
-   * @param zmin Minimal Redshift of binning
-   * @param zmax Maximal Redshift of binning
-   * @param mmin Minimal Halomass for binning [Msun]
-   * @param mmax Maximal Halomass for binning [Msun]
-   * @param kmin Minimal k for binning [1/Mpc]
-   * @param kmax Maximal k for binning [1/Mpc]
-   * @param Nbins Number of bins
-   * @param g Array containing precomputed lensing efficiency
-   * @param p_lens1 Array containing lens redshift distribution
-   * @param p_lens2 Array containing lens redshift distribution
-   * @param w Array containing comoving distance [Mpc]
-   * @param dwdz Array containing derivative of comoving distance [Mpc]
-   * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
-   * @param concentration Array containing concentration of NFW profiles
-   * @param rho_bar Array containing matter density [Msun/Mpc^3]
-   * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
-   * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param value Array which will contain results
-   * @param scaling1 Array containing scaling factors for satellite variances type a(optional)
-   * @param scaling2 Array containing scaling factors for satellite variances type b(optional)
-   */
-  __global__ void GPUkernel_2Halo(const double *params, double theta1, double theta2, double theta3, int npts, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2,
-                                  double A, double epsilon,
-                                  double zmin, double zmax, double mmin, double mmax, double kmin, double kmax, int Nbins,
-                                  const double *g, const double *p_lens1, const double *p_lens2, const double *w, const double *dwdz,
-                                  const double *hmf, const double *P_lin, const double *b_h, const double *concentration,
-                                  const double *rho_bar, const double *n_bar1, const double *n_bar2,
-                                  double *value, const double *scaling1 = NULL, const double *scaling2 = NULL);
-#endif
-
-  /**
-   * Integrand for 3Halo term of NNM for use with cubature
-   * @param ndim Dimension of integral (7 in this case)
-   * @param npts Number of integration points
-   * @param params Array of integration x-values
-   * @param thisPtr Pointer to integration container
-   * @param fdim Dimension of integrand function (1 in this case)
-   * @param value Array, which will contain the integration values
-   */
-  int integrand_3halo(unsigned ndim, size_t npts, const double *params, void *thisPtr, unsigned fdim, double *value);
-
-  /**
-   * Kernel function for 2Halo term of NNM
-   * @param theta1 Aperture Radius [rad]
-   * @param theta2 Aperture Radius [rad]
-   * @param theta3 Aperture Radius [rad]
-   * @param l1 l parameter [1/rad]
-   * @param l2 l parameter [1/rad]
-   * @param phi phi parameter [rad]
-   * @param m1 Halo mass1 [Msun]
-   * @param m2 Halo mass2 [Msun]
-   * @param m3 Halo mass3 [Msun]
-   * @param z Redshift
-   * @param zmin Minimal Redshift of binning
-   * @param zmax Maximal Redshift of binning
-   * @param mmin Minimal Halomass for binning [Msun]
-   * @param mmax Maximal Halomass for binning [Msun]
-   * @param kmin Minimal k for binning [1/Mpc]
-   * @param kmax Maximal k for binning [1/Mpc]
-   * @param Nbins Number of bins
-   * @param type1 Galaxy type (1 or 2)
-   * @param type2 Galaxy type (1 or 2)
-   * @param f1 Parameter f of HOD 1
-   * @param f2 Parameter f of HOD2
-   * @param alpha1 Parameter alpha of HOD1
-   * @param alpha2 Parameter alpha of HOD2
-   * @param mmin1 Parameter mmin of HOD1 [Msun]
-   * @param mmin2 Parameter mmin of HOD2 [Msun]
-   * @param sigma1 Parameter sigma of HOD1
-   * @param sigma2 Parameter sigma of HOD2
-   * @param mprime1 Parameter mprime of HOD1 [Msun]
-   * @param mprime2 Parameter mprime of HOD2 [Msun]
-   * @param beta1 Parameter beta of HOD
-   * @param beta2 Parameter beta of HOD
-   * @param A Parameter A of halo model
-   * @param epsilon Parameter epsilon of halo model
-   * @param g Array containing precomputed lensing efficiency
-   * @param p_lens1 Array containing lens redshift distribution
-   * @param p_lens2 Array containing lens redshift distribution
-   * @param w Array containing comoving distance [Mpc]
-   * @param dwdz Array containing derivative of comoving distance [Mpc]
-   * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
-   * @param concentration Array containing concentration of NFW profiles
-   * @param rho_bar Array containing matter density [Msun/Mpc^3]
-   * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
-   * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param H0 Hubble constant [km/s/Mpc]
-   * @param OmM Omega_m
-   */
-  __device__ __host__ double kernel_function_3halo(double theta1, double theta2, double theta3, double l1, double l2, double phi,
-                                                   double m1, double m2, double m3, double z, double zmin, double zmax, double mmin,
-                                                   double mmax, double kmin, double kmax, int Nbins, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2,
-                                                   const double *g, const double *p_lens1, const double *p_lens2, const double *w,
-                                                   const double *dwdz, const double *hmf, const double *P_lin, const double *b_h,
-                                                   const double *concentration, const double *rho_bar, const double *n_bar1,
-                                                   const double *n_bar2);
+    /**
+     * Kernel function for 2Halo term of NNM
+     * @param theta1 Aperture Radius [rad]
+     * @param theta2 Aperture Radius [rad]
+     * @param theta3 Aperture Radius [rad]
+     * @param l1 l parameter [1/rad]
+     * @param l2 l parameter [1/rad]
+     * @param phi phi parameter [rad]
+     * @param m1 Halo mass1 [Msun]
+     * @param m2 Halo mass2 [Msun]
+     * @param z Redshift
+     * @param zmin Minimal Redshift of binning
+     * @param zmax Maximal Redshift of binning
+     * @param mmin Minimal Halomass for binning [Msun]
+     * @param mmax Maximal Halomass for binning [Msun]
+     * @param Nbins Number of bins
+     * @param type1 Galaxy type (1 or 2)
+     * @param type2 Galaxy type (1 or 2)
+     * @param f1 Parameter f of HOD 1
+     * @param f2 Parameter f of HOD2
+     * @param alpha1 Parameter alpha of HOD1
+     * @param alpha2 Parameter alpha of HOD2
+     * @param mmin1 Parameter mmin of HOD1 [Msun]
+     * @param mmin2 Parameter mmin of HOD2 [Msun]
+     * @param sigma1 Parameter sigma of HOD1
+     * @param sigma2 Parameter sigma of HOD2
+     * @param mprime1 Parameter mprime of HOD1 [Msun]
+     * @param mprime2 Parameter mprime of HOD2 [Msun]
+     * @param beta1 Parameter beta of HOD
+     * @param beta2 Parameter beta of HOD
+     * @param A Parameter A of halo model
+     * @param epsilon Parameter epsilon of halo model
+     * @param g Array containing precomputed lensing efficiency
+     * @param p_lens1 Array containing lens redshift distribution
+     * @param p_lens2 Array containing lens redshift distribution
+     * @param w Array containing comoving distance [Mpc]
+     * @param dwdz Array containing derivative of comoving distance [Mpc]
+     * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
+     * @param concentration Array containing concentration of NFW profiles
+     * @param rho_bar Array containing matter density [Msun/Mpc^3]
+     * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
+     * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
+     * @param scaling1 Array containing scaling factors for satellite variances type a(optional)
+     * @param scaling2 Array containing scaling factors for satellite variances type b(optional)
+     */
+    __device__ __host__ double kernel_function_2halo(double theta1, double theta2, double theta3, double l1, double l2, double phi,
+                                                     double m1, double m2, double z, double zmin, double zmax, double mmin, double mmax,
+                                                     double kmin, double kmax, int Nbins, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2,
+                                                     double A, double epsilon, const double *g, const double *p_lens1,
+                                                     const double *p_lens2, const double *w, const double *dwdz, const double *hmf,
+                                                     const double *P_lin, const double *b_h, const double *concentration,
+                                                     const double *rho_bar, const double *n_bar1, const double *n_bar2,
+                                                     const double *scaling1 = NULL, const double *scaling2 = NULL);
 
 #if GPU
-  /**
-   * GPU Kernel for 2Halo term of NNM
-   * @param params Integration variables
-   * @param theta1 Aperture Radius [rad]
-   * @param theta2 Aperture Radius [rad]
-   * @param theta3 Aperture Radius [rad]
-   * @param npts Number of integration points
-   * @param type1 Galaxy type (1 or 2)
-   * @param type2 Galaxy type (1 or 2)
-   * @param f1 Parameter f of HOD 1
-   * @param f2 Parameter f of HOD2
-   * @param alpha1 Parameter alpha of HOD1
-   * @param alpha2 Parameter alpha of HOD2
-   * @param mmin1 Parameter mmin of HOD1 [Msun]
-   * @param mmin2 Parameter mmin of HOD2 [Msun]
-   * @param sigma1 Parameter sigma of HOD1
-   * @param sigma2 Parameter sigma of HOD2
-   * @param mprime1 Parameter mprime of HOD1 [Msun]
-   * @param mprime2 Parameter mprime of HOD2 [Msun]
-   * @param beta1 Parameter beta of HOD
-   * @param beta2 Parameter beta of HOD
-   * @param zmin Minimal Redshift of binning
-   * @param zmax Maximal Redshift of binning
-   * @param mmin Minimal Halomass for binning [Msun]
-   * @param mmax Maximal Halomass for binning [Msun]
-   * @param kmin Minimal k for binning [1/Mpc]
-   * @param kmax Maximal k for binning [1/Mpc]
-   * @param Nbins Number of bins
-   * @param g Array containing precomputed lensing efficiency
-   * @param p_lens1 Array containing lens redshift distribution
-   * @param p_lens2 Array containing lens redshift distribution
-   * @param w Array containing comoving distance [Mpc]
-   * @param dwdz Array containing derivative of comoving distance [Mpc]
-   * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
-   * @param concentration Array containing concentration of NFW profiles
-   * @param rho_bar Array containing matter density [Msun/Mpc^3]
-   * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
-   * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
-   * @param H0 Hubble constant [km/s/Mpc]
-   * @param OmM Omega_m
-   * @param value Array which will contain results
-   */
-  __global__ void GPUkernel_3Halo(const double *params, double theta1, double theta2, double theta3, int npts, HOD *hod1, HOD *hod2,  double* dev_params1, double* dev_params2,
-  double zmin, double zmax,
-                                  double mmin, double mmax, double kmin, double kmax, int Nbins, const double *g,
-                                  const double *p_lens1, const double *p_lens2, const double *w, const double *dwdz, const double *hmf,
-                                  const double *P_lin, const double *b_h, const double *concentration, const double *rho_bar,
-                                  const double *n_bar1, const double *n_bar2, double *value);
+    /**
+     * GPU Kernel for 2Halo term of NNM
+     * @param params Integration variables
+     * @param theta1 Aperture Radius [rad]
+     * @param theta2 Aperture Radius [rad]
+     * @param theta3 Aperture Radius [rad]
+     * @param npts Number of integration points
+     * @param type1 Galaxy type (1 or 2)
+     * @param type2 Galaxy type (1 or 2)
+     * @param f1 Parameter f of HOD 1
+     * @param f2 Parameter f of HOD2
+     * @param alpha1 Parameter alpha of HOD1
+     * @param alpha2 Parameter alpha of HOD2
+     * @param mmin1 Parameter mmin of HOD1 [Msun]
+     * @param mmin2 Parameter mmin of HOD2 [Msun]
+     * @param sigma1 Parameter sigma of HOD1
+     * @param sigma2 Parameter sigma of HOD2
+     * @param mprime1 Parameter mprime of HOD1 [Msun]
+     * @param mprime2 Parameter mprime of HOD2 [Msun]
+     * @param beta1 Parameter beta of HOD
+     * @param beta2 Parameter beta of HOD
+     * @param A Parameter A of halo model
+     * @param epsilon Parameter epsilon of halo model
+     * @param zmin Minimal Redshift of binning
+     * @param zmax Maximal Redshift of binning
+     * @param mmin Minimal Halomass for binning [Msun]
+     * @param mmax Maximal Halomass for binning [Msun]
+     * @param kmin Minimal k for binning [1/Mpc]
+     * @param kmax Maximal k for binning [1/Mpc]
+     * @param Nbins Number of bins
+     * @param g Array containing precomputed lensing efficiency
+     * @param p_lens1 Array containing lens redshift distribution
+     * @param p_lens2 Array containing lens redshift distribution
+     * @param w Array containing comoving distance [Mpc]
+     * @param dwdz Array containing derivative of comoving distance [Mpc]
+     * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
+     * @param concentration Array containing concentration of NFW profiles
+     * @param rho_bar Array containing matter density [Msun/Mpc^3]
+     * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
+     * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
+     * @param value Array which will contain results
+     * @param scaling1 Array containing scaling factors for satellite variances type a(optional)
+     * @param scaling2 Array containing scaling factors for satellite variances type b(optional)
+     */
+    __global__ void GPUkernel_2Halo(const double *params, double theta1, double theta2, double theta3, int npts, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2,
+                                    double A, double epsilon,
+                                    double zmin, double zmax, double mmin, double mmax, double kmin, double kmax, int Nbins,
+                                    const double *g, const double *p_lens1, const double *p_lens2, const double *w, const double *dwdz,
+                                    const double *hmf, const double *P_lin, const double *b_h, const double *concentration,
+                                    const double *rho_bar, const double *n_bar1, const double *n_bar2,
+                                    double *value, const double *scaling1 = NULL, const double *scaling2 = NULL);
+#endif
+
+    /**
+     * Integrand for 3Halo term of NNM for use with cubature
+     * @param ndim Dimension of integral (7 in this case)
+     * @param npts Number of integration points
+     * @param params Array of integration x-values
+     * @param thisPtr Pointer to integration container
+     * @param fdim Dimension of integrand function (1 in this case)
+     * @param value Array, which will contain the integration values
+     */
+    int integrand_3halo(unsigned ndim, size_t npts, const double *params, void *thisPtr, unsigned fdim, double *value);
+
+    /**
+     * Kernel function for 2Halo term of NNM
+     * @param theta1 Aperture Radius [rad]
+     * @param theta2 Aperture Radius [rad]
+     * @param theta3 Aperture Radius [rad]
+     * @param l1 l parameter [1/rad]
+     * @param l2 l parameter [1/rad]
+     * @param phi phi parameter [rad]
+     * @param m1 Halo mass1 [Msun]
+     * @param m2 Halo mass2 [Msun]
+     * @param m3 Halo mass3 [Msun]
+     * @param z Redshift
+     * @param zmin Minimal Redshift of binning
+     * @param zmax Maximal Redshift of binning
+     * @param mmin Minimal Halomass for binning [Msun]
+     * @param mmax Maximal Halomass for binning [Msun]
+     * @param kmin Minimal k for binning [1/Mpc]
+     * @param kmax Maximal k for binning [1/Mpc]
+     * @param Nbins Number of bins
+     * @param type1 Galaxy type (1 or 2)
+     * @param type2 Galaxy type (1 or 2)
+     * @param f1 Parameter f of HOD 1
+     * @param f2 Parameter f of HOD2
+     * @param alpha1 Parameter alpha of HOD1
+     * @param alpha2 Parameter alpha of HOD2
+     * @param mmin1 Parameter mmin of HOD1 [Msun]
+     * @param mmin2 Parameter mmin of HOD2 [Msun]
+     * @param sigma1 Parameter sigma of HOD1
+     * @param sigma2 Parameter sigma of HOD2
+     * @param mprime1 Parameter mprime of HOD1 [Msun]
+     * @param mprime2 Parameter mprime of HOD2 [Msun]
+     * @param beta1 Parameter beta of HOD
+     * @param beta2 Parameter beta of HOD
+     * @param A Parameter A of halo model
+     * @param epsilon Parameter epsilon of halo model
+     * @param g Array containing precomputed lensing efficiency
+     * @param p_lens1 Array containing lens redshift distribution
+     * @param p_lens2 Array containing lens redshift distribution
+     * @param w Array containing comoving distance [Mpc]
+     * @param dwdz Array containing derivative of comoving distance [Mpc]
+     * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
+     * @param concentration Array containing concentration of NFW profiles
+     * @param rho_bar Array containing matter density [Msun/Mpc^3]
+     * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
+     * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
+     * @param H0 Hubble constant [km/s/Mpc]
+     * @param OmM Omega_m
+     */
+    __device__ __host__ double kernel_function_3halo(double theta1, double theta2, double theta3, double l1, double l2, double phi,
+                                                     double m1, double m2, double m3, double z, double zmin, double zmax, double mmin,
+                                                     double mmax, double kmin, double kmax, int Nbins, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2,
+                                                     const double *g, const double *p_lens1, const double *p_lens2, const double *w,
+                                                     const double *dwdz, const double *hmf, const double *P_lin, const double *b_h,
+                                                     const double *concentration, const double *rho_bar, const double *n_bar1,
+                                                     const double *n_bar2);
+
+#if GPU
+    /**
+     * GPU Kernel for 2Halo term of NNM
+     * @param params Integration variables
+     * @param theta1 Aperture Radius [rad]
+     * @param theta2 Aperture Radius [rad]
+     * @param theta3 Aperture Radius [rad]
+     * @param npts Number of integration points
+     * @param type1 Galaxy type (1 or 2)
+     * @param type2 Galaxy type (1 or 2)
+     * @param f1 Parameter f of HOD 1
+     * @param f2 Parameter f of HOD2
+     * @param alpha1 Parameter alpha of HOD1
+     * @param alpha2 Parameter alpha of HOD2
+     * @param mmin1 Parameter mmin of HOD1 [Msun]
+     * @param mmin2 Parameter mmin of HOD2 [Msun]
+     * @param sigma1 Parameter sigma of HOD1
+     * @param sigma2 Parameter sigma of HOD2
+     * @param mprime1 Parameter mprime of HOD1 [Msun]
+     * @param mprime2 Parameter mprime of HOD2 [Msun]
+     * @param beta1 Parameter beta of HOD
+     * @param beta2 Parameter beta of HOD
+     * @param zmin Minimal Redshift of binning
+     * @param zmax Maximal Redshift of binning
+     * @param mmin Minimal Halomass for binning [Msun]
+     * @param mmax Maximal Halomass for binning [Msun]
+     * @param kmin Minimal k for binning [1/Mpc]
+     * @param kmax Maximal k for binning [1/Mpc]
+     * @param Nbins Number of bins
+     * @param g Array containing precomputed lensing efficiency
+     * @param p_lens1 Array containing lens redshift distribution
+     * @param p_lens2 Array containing lens redshift distribution
+     * @param w Array containing comoving distance [Mpc]
+     * @param dwdz Array containing derivative of comoving distance [Mpc]
+     * @param hmf Array containing precomputed HMF [1/Mpc^3/Msun]
+     * @param concentration Array containing concentration of NFW profiles
+     * @param rho_bar Array containing matter density [Msun/Mpc^3]
+     * @param n_bar1 Array containing galaxy number density [1/Mpc^3]
+     * @param n_bar2 Array containing galaxy number density [1/Mpc^3]
+     * @param H0 Hubble constant [km/s/Mpc]
+     * @param OmM Omega_m
+     * @param value Array which will contain results
+     */
+    __global__ void GPUkernel_3Halo(const double *params, double theta1, double theta2, double theta3, int npts, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2,
+                                    double zmin, double zmax,
+                                    double mmin, double mmax, double kmin, double kmax, int Nbins, const double *g,
+                                    const double *p_lens1, const double *p_lens2, const double *w, const double *dwdz, const double *hmf,
+                                    const double *P_lin, const double *b_h, const double *concentration, const double *rho_bar,
+                                    const double *n_bar1, const double *n_bar2, double *value);
 
 #endif
 
-  /**
-   * G_g Function (helper for NNM)
-   * @param k Wavevector [1/Mpc]
-   * @param m Halo mass [Msun]
-   * @param z redshift
-   * @param f f parameter of HOD
-   * @param alpha Alpha parameter
-   * @param mth Mmin parameter [Msun]
-   * @param sigma Sigma parameter
-   * @param mprime Mprime parameter [Msun]
-   * @param beta Beta parameter
-   * @param zmin Minimal Redshift of binning
-   * @param zmax Maximal Redshift of binning
-   * @param mmin Minimal Halomass for binning [Msun]
-   * @param mmax Maximal Halomass for binning [Msun]
-   * @param Nbins Number of bins
-   * @param Array contain matter density
-   * @param Array containing concentration
-   */
-  __host__ __device__ double G_g(double k, double m, double z, HOD *hod, double * dev_params,
-                                 double zmin, double zmax, double mmin, double mmax,
-                                 int Nbins, const double *rho_bar, const double *concentration);
+    /**
+     * G_g Function (helper for NNM)
+     * @param k Wavevector [1/Mpc]
+     * @param m Halo mass [Msun]
+     * @param z redshift
+     * @param f f parameter of HOD
+     * @param alpha Alpha parameter
+     * @param mth Mmin parameter [Msun]
+     * @param sigma Sigma parameter
+     * @param mprime Mprime parameter [Msun]
+     * @param beta Beta parameter
+     * @param zmin Minimal Redshift of binning
+     * @param zmax Maximal Redshift of binning
+     * @param mmin Minimal Halomass for binning [Msun]
+     * @param mmax Maximal Halomass for binning [Msun]
+     * @param Nbins Number of bins
+     * @param Array contain matter density
+     * @param Array containing concentration
+     */
+    __host__ __device__ double G_g(double k, double m, double z, HOD *hod, double *dev_params,
+                                   double zmin, double zmax, double mmin, double mmax,
+                                   int Nbins, const double *rho_bar, const double *concentration);
 
-  /**
-   * G_gg Function (helper for NNM)
-   * @param k1 Wavevector 1 [1/Mpc]
-   * @param k2 Wavevector 2 [1/Mpc]
-   * @param m Halo mass [Msun]
-   * @param z redshift
-   * @param f1 Parameter f of HOD 1
-   * @param f2 Parameter f of HOD2
-   * @param alpha1 Parameter alpha of HOD1
-   * @param alpha2 Parameter alpha of HOD2
-   * @param mmin1 Parameter mmin of HOD1 [Msun]
-   * @param mmin2 Parameter mmin of HOD2 [Msun]
-   * @param sigma1 Parameter sigma of HOD1
-   * @param sigma2 Parameter sigma of HOD2
-   * @param mprime1 Parameter mprime of HOD1 [Msun]
-   * @param mprime2 Parameter mprime of HOD2 [Msun]
-   * @param beta1 Parameter beta of HOD
-   * @param beta2 Parameter beta of HOD
-   * @param A Parameter A of halo model
-   * @param epsilon Parameter epsilon of halo model
-   * @param zmin Minimal Redshift of binning
-   * @param zmax Maximal Redshift of binning
-   * @param mmin Minimal Halomass for binning [Msun]
-   * @param mmax Maximal Halomass for binning [Msun]
-   * @param Nbins Number of bins
-   * @param Array contain matter density
-   * @param Array containing concentration
-   * @param sameType True if type1==type2
-   * @param scale1 scaling weight for satellite variance (type a) (optional)
-   * @param scale2 scaling weight for satellite variance (type b) (optional)
-   */
-  __host__ __device__ double G_gg(double k1, double k2, double m, double z, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2, double A, double epsilon,
-                                  double zmin, double zmax, double mmin, double mmax,
-                                  int Nbins, const double *rho_bar, const double *concentration, double scale1 = 1, double scale2 = 1);
-}
+    /**
+     * G_gg Function (helper for NNM)
+     * @param k1 Wavevector 1 [1/Mpc]
+     * @param k2 Wavevector 2 [1/Mpc]
+     * @param m Halo mass [Msun]
+     * @param z redshift
+     * @param f1 Parameter f of HOD 1
+     * @param f2 Parameter f of HOD2
+     * @param alpha1 Parameter alpha of HOD1
+     * @param alpha2 Parameter alpha of HOD2
+     * @param mmin1 Parameter mmin of HOD1 [Msun]
+     * @param mmin2 Parameter mmin of HOD2 [Msun]
+     * @param sigma1 Parameter sigma of HOD1
+     * @param sigma2 Parameter sigma of HOD2
+     * @param mprime1 Parameter mprime of HOD1 [Msun]
+     * @param mprime2 Parameter mprime of HOD2 [Msun]
+     * @param beta1 Parameter beta of HOD
+     * @param beta2 Parameter beta of HOD
+     * @param A Parameter A of halo model
+     * @param epsilon Parameter epsilon of halo model
+     * @param zmin Minimal Redshift of binning
+     * @param zmax Maximal Redshift of binning
+     * @param mmin Minimal Halomass for binning [Msun]
+     * @param mmax Maximal Halomass for binning [Msun]
+     * @param Nbins Number of bins
+     * @param Array contain matter density
+     * @param Array containing concentration
+     * @param sameType True if type1==type2
+     * @param scale1 scaling weight for satellite variance (type a) (optional)
+     * @param scale2 scaling weight for satellite variance (type b) (optional)
+     */
+    __host__ __device__ double G_gg(double k1, double k2, double m, double z, HOD *hod1, HOD *hod2, double *dev_params1, double *dev_params2, double A, double epsilon,
+                                    double zmin, double zmax, double mmin, double mmax,
+                                    int Nbins, const double *rho_bar, const double *concentration, double scale1 = 1, double scale2 = 1);
+  }
   struct nnmap_container
   {
     NNMap_Model *nnmap;

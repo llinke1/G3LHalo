@@ -316,7 +316,8 @@ double g3lhalo::NNMap_Model::NNMap_1h(const double &theta1, const double &theta2
   hcubature_v(1, NNM::integrand_1halo, &container, 5, params_min, params_max, 5000000, 0, 1e-3, ERROR_L1, &result, &error);
 
   // Return result (Prefactor includes three ln10 terms due to logarithmic integral)
-  return result * 3 * cosmology->H0 * cosmology->H0 * cosmology->Omega_m / 2 / g3lhalo::c / g3lhalo::c * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 / (2 * g3lhalo::pi) / (2 * g3lhalo::pi) / (2 * g3lhalo::pi);
+  return result * 3 * cosmology->H0 * cosmology->H0 * cosmology->Omega_m / 2 / g3lhalo::c / g3lhalo::c 
+  * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 / (2 * g3lhalo::pi) / (2 * g3lhalo::pi) / (2 * g3lhalo::pi);
 }
 
 double g3lhalo::NNMap_Model::NNMap_2h(const double &theta1, const double &theta2, const double &theta3, const int &type1, const int &type2)
@@ -340,7 +341,8 @@ double g3lhalo::NNMap_Model::NNMap_2h(const double &theta1, const double &theta2
   hcubature_v(1, NNM::integrand_2halo, &container, 6, params_min, params_max, 5000000, 0, 1e-3, ERROR_L1, &result, &error);
 
   // Return result (Prefactor includes four ln10 terms due to logarithmic integral)
-  return result * 3 * cosmology->H0 * cosmology->H0 * cosmology->Omega_m / 2 / g3lhalo::c / g3lhalo::c * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 / (2 * g3lhalo::pi) / (2 * g3lhalo::pi) / (2 * g3lhalo::pi);
+  return result * 3 * cosmology->H0 * cosmology->H0 * cosmology->Omega_m / 2 / g3lhalo::c / g3lhalo::c 
+  * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 / (2 * g3lhalo::pi) / (2 * g3lhalo::pi) / (2 * g3lhalo::pi);
 }
 
 double g3lhalo::NNMap_Model::NNMap_3h(const double &theta1, const double &theta2, const double &theta3, const int &type1, const int &type2)
@@ -364,7 +366,8 @@ double g3lhalo::NNMap_Model::NNMap_3h(const double &theta1, const double &theta2
   hcubature_v(1, NNM::integrand_3halo, &container, 7, params_min, params_max, 5000000, 0, 1e-4, ERROR_L1, &result, &error);
 
   // Return result (Prefactor includes five ln10 terms due to logarithmic integral)
-  return result * 3 * cosmology->H0 * cosmology->H0 * cosmology->Omega_m / 2 / g3lhalo::c / g3lhalo::c * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 / (2 * g3lhalo::pi) / (2 * g3lhalo::pi) / (2 * g3lhalo::pi);
+  return result * 3 * cosmology->H0 * cosmology->H0 * cosmology->Omega_m / 2 / g3lhalo::c / g3lhalo::c 
+  * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 * g3lhalo::ln10 / (2 * g3lhalo::pi) / (2 * g3lhalo::pi) / (2 * g3lhalo::pi);
 }
 
 double g3lhalo::NNMap_Model::NNMap(const double &theta1, const double &theta2, const double &theta3, const int &type1, const int &type2)
@@ -473,7 +476,6 @@ int g3lhalo::NNM::integrand_1halo(unsigned ndim, size_t npts, const double *para
   double A = nnmap->A;
   double epsilon = nnmap->epsilon;
 
-  // std::cerr<<f1<<std::endl;
 #if GPU // Calculation on GPU
 
   // Allocate for integration values on device
