@@ -93,32 +93,7 @@ namespace g3lhalo
    /// Empty constructor
     NNMap_Model(){};
     
-    /**
-     * Constructor from values
-     * Sets Parameter members to the values provided and calculates matter- and galaxy densities
-     * If GPU is set to true, copies look-up tables to device memory (including memory allocation)
-     *
-     * @param cosmology_ Cosmological parameters (flat LCDM)
-     * @param zmin_ Minimal redshift for binning
-     * @param zmax_ Maximal redshift for binning
-     * @param kmin_ Minimal k for binning [1/Mpc]
-     * @param kmax_ Maximal k for binning [1/Mpc]
-     * @param mmin_ Minimal halomass for binning [Msun]
-     * @param mmax_ Maximal halomass for binning [Msun]
-     * @param Nbins_ Number of bins
-     * @param g_ Lensing efficiency
-     * @param p_lens1_ Lens galaxy redshift distribution
-     * @param p_lens2_ Lens galaxy redshift distribution
-     * @param w_ Comoving distance [Mpc]
-     * @param dwdz_ Derivative of comoving distance wrt redshift [Mpc]
-     * @param hmf_ Halo mass function [1/Mpc^3/Msun]
-     * @param P_lin_ Linear Power spectrum [1/Mpc^3]
-     * @param b_h_ Linear Halo bias
-     * @param concentration_ Concentration of NFW profiles
-     * @param params_ HOD parameters  
-     */
-    NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
-    double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_);
+
 #if SCALING
 
 /**
@@ -149,6 +124,33 @@ namespace g3lhalo
      */
     NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
     double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, double* scaling1_, double* scaling2_, Params* params_);
+#else
+    /**
+     * Constructor from values
+     * Sets Parameter members to the values provided and calculates matter- and galaxy densities
+     * If GPU is set to true, copies look-up tables to device memory (including memory allocation)
+     *
+     * @param cosmology_ Cosmological parameters (flat LCDM)
+     * @param zmin_ Minimal redshift for binning
+     * @param zmax_ Maximal redshift for binning
+     * @param kmin_ Minimal k for binning [1/Mpc]
+     * @param kmax_ Maximal k for binning [1/Mpc]
+     * @param mmin_ Minimal halomass for binning [Msun]
+     * @param mmax_ Maximal halomass for binning [Msun]
+     * @param Nbins_ Number of bins
+     * @param g_ Lensing efficiency
+     * @param p_lens1_ Lens galaxy redshift distribution
+     * @param p_lens2_ Lens galaxy redshift distribution
+     * @param w_ Comoving distance [Mpc]
+     * @param dwdz_ Derivative of comoving distance wrt redshift [Mpc]
+     * @param hmf_ Halo mass function [1/Mpc^3/Msun]
+     * @param P_lin_ Linear Power spectrum [1/Mpc^3]
+     * @param b_h_ Linear Halo bias
+     * @param concentration_ Concentration of NFW profiles
+     * @param params_ HOD parameters  
+     */
+    NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
+    double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_);
 #endif
 
 

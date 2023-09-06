@@ -15,93 +15,98 @@
 
 
 
-g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
-  double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_)
-{
+// g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
+//   double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_)
+// {
 
-  // Set parameters
-  cosmology=cosmology_;
+//   // Set parameters
+//   cosmology=cosmology_;
   
-  zmin=zmin_;
-  zmax=zmax_;
-  kmin=kmin_;
-  kmax=kmax_;
-  mmin=mmin_;
-  mmax=mmax_;
-  Nbins=Nbins_;
-  g=g_;
-  p_lens1=p_lens1_;
-  p_lens2=p_lens2_;
-  w=w_;
-  dwdz=dwdz_;
-  hmf=hmf_;
-  P_lin=P_lin_;
-  b_h=b_h_;
-  concentration=concentration_;
-  params=params_;
+//   zmin=zmin_;
+//   zmax=zmax_;
+//   kmin=kmin_;
+//   kmax=kmax_;
+//   mmin=mmin_;
+//   mmax=mmax_;
+//   Nbins=Nbins_;
+//   g=g_;
+//   p_lens1=p_lens1_;
+//   p_lens2=p_lens2_;
+//   w=w_;
+//   dwdz=dwdz_;
+//   hmf=hmf_;
+//   P_lin=P_lin_;
+//   b_h=b_h_;
+//   concentration=concentration_;
+//   params=params_;
 
-  zmin_integral=zmin;
-  zmax_integral=zmax-(zmax-zmin)/Nbins;
-  mmin_integral=mmin;
-  mmax_integral=exp(log(mmin)+log(mmax/mmin)*(Nbins-1)/Nbins);
+//   zmin_integral=zmin;
+//   zmax_integral=zmax-(zmax-zmin)/Nbins;
+//   mmin_integral=mmin;
+//   mmax_integral=exp(log(mmin)+log(mmax/mmin)*(Nbins-1)/Nbins);
   
   
-#if GPU
-  // Allocation of memory for precomputed functions on device
-  CUDA_SAFE_CALL(cudaMalloc(&dev_g, Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_p_lens1, Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_p_lens2, Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_w, Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_dwdz, Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_hmf, Nbins*Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_P_lin, Nbins*Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_b_h, Nbins*Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_concentration, Nbins*Nbins*sizeof(double)));
+// #if GPU
+//   // Allocation of memory for precomputed functions on device
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_g, Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_p_lens1, Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_p_lens2, Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_w, Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_dwdz, Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_hmf, Nbins*Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_P_lin, Nbins*Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_b_h, Nbins*Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_concentration, Nbins*Nbins*sizeof(double)));
 
 
-  // Copying of precomputed functions to device
-  CUDA_SAFE_CALL(cudaMemcpy(dev_g, g, Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_p_lens1, p_lens1, Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_p_lens2, p_lens2, Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_w, w, Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_dwdz, dwdz, Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_hmf, hmf, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_P_lin, P_lin, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_b_h, b_h, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dev_concentration, concentration, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   // Copying of precomputed functions to device
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_g, g, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_p_lens1, p_lens1, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_p_lens2, p_lens2, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_w, w, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_dwdz, dwdz, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_hmf, hmf, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_P_lin, P_lin, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_b_h, b_h, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_concentration, concentration, Nbins*Nbins*sizeof(double), cudaMemcpyHostToDevice));
 
 
 
-  // Allocation of memory for densities on device
-  CUDA_SAFE_CALL(cudaMalloc(&dev_rho_bar, Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_n_bar1, Nbins*sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_n_bar2, Nbins*sizeof(double)));
+//   // Allocation of memory for densities on device
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_rho_bar, Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_n_bar1, Nbins*sizeof(double)));
+//   CUDA_SAFE_CALL(cudaMalloc(&dev_n_bar2, Nbins*sizeof(double)));
   
-#endif // GPU
+// #endif // GPU
 
-  // Allocattion of memory for densities on Host
-  rho_bar = (double*) malloc(Nbins*sizeof(double));
-  n_bar1 = (double*) malloc(Nbins*sizeof(double));
-  n_bar2 = (double*) malloc(Nbins*sizeof(double));
+//   // Allocattion of memory for densities on Host
+//   rho_bar = (double*) malloc(Nbins*sizeof(double));
+//   n_bar1 = (double*) malloc(Nbins*sizeof(double));
+//   n_bar2 = (double*) malloc(Nbins*sizeof(double));
 
-#if VERBOSE
-  std::cerr<<"Finished memory setting"<<std::endl;
-#endif //VERBOSE
+// #if VERBOSE
+//   std::cerr<<"Finished memory setting"<<std::endl;
+// #endif //VERBOSE
 
-  // Calculate densities (stored in rho_bar, n_bar1 and n_bar2)
-  updateDensities();
+//   // Calculate densities (stored in rho_bar, n_bar1 and n_bar2)
+//   updateDensities();
 
-#if GPU
-  // Copying of densities to device
-  CUDA_SAFE_CALL(cudaMemcpy(dev_rho_bar, rho_bar, Nbins*sizeof(double), cudaMemcpyHostToDevice));
-#endif
-#if VERBOSE
-  std::cerr<<"Finished initalizing NNMap"<<std::endl;
-#endif // VERBOSE
-}
+// #if GPU
+//   // Copying of densities to device
+//   CUDA_SAFE_CALL(cudaMemcpy(dev_rho_bar, rho_bar, Nbins*sizeof(double), cudaMemcpyHostToDevice));
+// #endif
+// #if VERBOSE
+//   std::cerr<<"Finished initalizing NNMap"<<std::endl;
+// #endif // VERBOSE
+// }
 
+#if SCALING
 g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
   double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, double* scaling1_, double* scaling2_, Params* params_)
+#else
+g3lhalo::NNMap_Model::NNMap_Model(Cosmology* cosmology_, const double& zmin_, const double& zmax_, const double& kmin_, const double& kmax_, const double& mmin_, const double& mmax_, const int& Nbins_, 
+  double* g_, double* p_lens1_, double* p_lens2_, double* w_, double* dwdz_, double* hmf_, double* P_lin_, double* b_h_, double* concentration_, Params* params_)
+#endif
 {
 
   // Set parameters

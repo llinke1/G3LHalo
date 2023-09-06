@@ -38,3 +38,10 @@ scripts/*
 # Emacs buffers
 *~
 \#*
+
+FS_blue/*
+FS_red/*
+FS_green/*
+scripts_FS_blue/*
+scripts_FS_red/*
+scripts_FS_green/*

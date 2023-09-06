@@ -14,7 +14,7 @@ USERFLAGS += -DGPU=true
 endif
 
 # define if Scaling of Satellite variance is used
-SCALING = true
+SCALING = false
 ifeq ($(SCALING), true)
 USERFLAGS += -DSCALING=true
 endif
